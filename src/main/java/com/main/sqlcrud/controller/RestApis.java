@@ -1,6 +1,7 @@
 package com.main.sqlcrud.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +54,7 @@ public class RestApis {
         // signUpRequest.getEmail(),
         // encoder.encode(signUpRequest.getPassword()));
 
-        return new ResponseEntity<>(new ResponseMessage("User registered successfully!"), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseMessage("User registered successfully!"), HttpStatus.CREATED);
     }
 
     @GetMapping("/getStudent/{admissionNum}")
@@ -84,5 +85,19 @@ public class RestApis {
                     return new ResponseEntity<>(new ResponseMessage("Student not found under this admission number"), HttpStatus.BAD_REQUEST);
                 }
     }
+
+    @DeleteMapping("/deleteStudent/{admissionNumber}")
+    public ResponseEntity<?> deleteStudent(@PathVariable(value = "admissionNumber") Long admissionNumber) {
+        Student temp = studentRepository.findByAdmissionNumber(admissionNumber);
+
+        if (temp != null){
+            studentRepository.delete(temp);
+            return new ResponseEntity<>(new ResponseMessage("deleted successfully!"), HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(new ResponseMessage("Student not found under this admission number"), HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
     
 }
