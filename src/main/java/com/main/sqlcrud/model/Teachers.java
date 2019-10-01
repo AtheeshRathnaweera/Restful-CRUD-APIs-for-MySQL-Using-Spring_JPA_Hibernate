@@ -1,7 +1,5 @@
 package com.main.sqlcrud.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,21 +8,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.NaturalId;
 
 @Entity
-@Table(name="student", uniqueConstraints = {
+@Table(name="teachers", uniqueConstraints = {
     @UniqueConstraint(columnNames = {
-        "admissionNumber"
+        "NIC"
     })
 })
-public class Student{
-
+public class Teachers{
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(insertable = false, updatable = false)
@@ -38,36 +34,29 @@ public class Student{
     @Size(min=3, max = 50)
     private String lastName;
 
-    @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
-    private Date bday;
-
     @NotBlank
+    @Size(min=3, max = 50)
     private String address;
 
+    @NotNull
     @NaturalId
-    @NotNull
-    private Long admissionNumber;
+    @Size(min=9, max = 11)
+    private Long NIC;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
-    private Date enrolledDate;
+    @Size(min=9, max = 10)
+    private Long telephoneNumber;
 
-    public Student(){}
+    public Teachers(){}
 
-    public Student(String firstName,String lastName,Date bday,String address,Long admissionNumber,Date enrolledDate){
+    public Teachers(String firstName,String lastName,String address,Long NIC,Long telephoneNumber){
 
         this.firstName = firstName;
         this.lastName = lastName;
-        this.bday = bday;
         this.address = address;
-        this.admissionNumber = admissionNumber;
-        this.enrolledDate = enrolledDate;
+        this.NIC = NIC;
+        this.telephoneNumber = telephoneNumber;
 
-    }
-
-    public void setId(Long id){
-        this.id = id;
     }
 
     public Long getId(){
@@ -90,35 +79,31 @@ public class Student{
         return lastName;
     }
 
-    public void setBday(Date bday){
-        this.bday = bday;
-    }
-
-    public Date getBday(){
-        return bday;
-    }
-
     public void setAddress(String address){
         this.address = address;
     }
 
-    public String getAddress(){
+    public String getAdress(){
         return address;
     }
 
-    public void setAdmissionNumber(Long admissionNumber){
-        this.admissionNumber = admissionNumber;
+    public void setNIC(Long NIC){
+        this.NIC = NIC;
     }
 
-    public Long getAdmissionNumber(){
-        return admissionNumber;
-    }
-    public void setEnrolledDate(Date enrolledDate){
-        this.enrolledDate = enrolledDate;
+    public Long getNIC(){
+        return NIC;
     }
 
-    public Date getEnrolledDate(){
-        return enrolledDate;
+    public void setTelephoneNumber(Long telephoneNumber){
+        this.telephoneNumber = telephoneNumber;
     }
+
+    public Long getTelephoneNumber(){
+        return telephoneNumber;
+    }
+
+
+
 
 }
