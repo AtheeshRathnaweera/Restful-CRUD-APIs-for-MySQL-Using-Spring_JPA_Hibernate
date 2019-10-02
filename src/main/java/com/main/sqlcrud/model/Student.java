@@ -8,27 +8,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import org.hibernate.annotations.NaturalId;
 
 @Entity
-@Table(name="student", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
-        "admissionNumber"
-    })
-})
+@Table(name="student")
 public class Student{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(insertable = false, updatable = false)
-    private Long id;
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="admissionNum", insertable=true, updatable=true, unique=true, nullable=false)
+    private Long admissionNumber;
 
     @NotBlank
     @Size(min=3, max = 50)
@@ -45,33 +39,33 @@ public class Student{
     @NotBlank
     private String address;
 
-    @NaturalId
-    @NotNull
-    private Long admissionNumber;
-
     @NotNull
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
     private Date enrolledDate;
 
     public Student(){}
 
-    public Student(String firstName,String lastName,Date bday,String address,Long admissionNumber,Date enrolledDate){
+    public Student(Long admissionNumber,String firstName,String lastName,Date bday,String address,Date enrolledDate){
 
+        this.admissionNumber = admissionNumber;
         this.firstName = firstName;
         this.lastName = lastName;
         this.bday = bday;
         this.address = address;
-        this.admissionNumber = admissionNumber;
         this.enrolledDate = enrolledDate;
 
     }
 
-    public void setId(Long id){
-        this.id = id;
+    public Student(Long admissionNumber){
+        this.admissionNumber = admissionNumber;
     }
 
-    public Long getId(){
-        return id;
+    public void setAdmissionNumber(Long admissionNumber){
+        this.admissionNumber = admissionNumber;
+    }
+
+    public Long getAdmissionNumber(){
+        return admissionNumber;
     }
 
     public void setFirstName(String firstName){
@@ -106,13 +100,6 @@ public class Student{
         return address;
     }
 
-    public void setAdmissionNumber(Long admissionNumber){
-        this.admissionNumber = admissionNumber;
-    }
-
-    public Long getAdmissionNumber(){
-        return admissionNumber;
-    }
     public void setEnrolledDate(Date enrolledDate){
         this.enrolledDate = enrolledDate;
     }

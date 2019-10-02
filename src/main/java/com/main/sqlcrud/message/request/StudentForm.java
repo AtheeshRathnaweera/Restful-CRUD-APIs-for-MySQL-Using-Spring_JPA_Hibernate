@@ -9,6 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class StudentForm {
 
+    @NotNull
+    private Long admissionNumber;
+
     @NotBlank
     @Size(min=3, max = 50)
     private String firstName;
@@ -25,12 +28,17 @@ public class StudentForm {
     private String address;
 
     @NotNull
-    private Long admissionNumber;
-
-    @NotNull
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
     private Date enrolledDate;
 
+    public void setAdmissionNumber(Long admissionNumber){
+        this.admissionNumber = admissionNumber;
+    }
+
+    public Long getAdmissionNumber(){
+        return admissionNumber;
+    }
+    
     public void setFirstName(String firstName){
         this.firstName = firstName;
     }
@@ -61,14 +69,6 @@ public class StudentForm {
 
     public String getAddress(){
         return address;
-    }
-
-    public void setAdmissionNumber(Long admissionNumber){
-        this.admissionNumber = admissionNumber;
-    }
-
-    public Long getAdmissionNumber(){
-        return admissionNumber;
     }
 
     public void setEnrolledDate(Date enrolledDate){

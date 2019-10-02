@@ -1,7 +1,5 @@
 package com.main.sqlcrud.repository;
 
-import java.util.Optional;
-
 import com.main.sqlcrud.model.Student;
 
 import org.springframework.data.jpa.repository.JpaRepository;
