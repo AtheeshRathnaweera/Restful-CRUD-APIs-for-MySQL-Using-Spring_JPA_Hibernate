@@ -112,7 +112,6 @@ public class RestApis {
     @PostMapping("/addClass")
     public ResponseEntity<?> addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
 
-
         List<Long> strStudents = newClassRequest.getStudents();
 
         System.out.println("received students : "+strStudents+"  "+"class name: "

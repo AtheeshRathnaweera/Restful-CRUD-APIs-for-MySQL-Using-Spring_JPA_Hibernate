@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Student{
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    //@GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name="admissionNum", insertable=true, updatable=true, unique=true, nullable=false)
     private Long admissionNumber;
 

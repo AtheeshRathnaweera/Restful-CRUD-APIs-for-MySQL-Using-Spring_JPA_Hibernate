@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface StudentRepository extends JpaRepository<Student, Long>{
     Boolean existsByAdmissionNumber(Long admissionNumber);
 
-	Student findByAdmissionNumber(Long admissionNumber);
+    Student findByAdmissionNumber(Long admissionNumber);
+    
 }
 

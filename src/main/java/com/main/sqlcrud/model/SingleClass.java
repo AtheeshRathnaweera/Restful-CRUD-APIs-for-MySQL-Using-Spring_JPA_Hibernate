@@ -21,21 +21,12 @@ import javax.persistence.JoinColumn;
 import org.hibernate.annotations.NaturalId;
 
 @Entity
-@Table(name="class", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
-        "className"
-    })
-})
+@Table(name="class")
 public class SingleClass{
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(insertable = false, updatable = false)
-    private Long id;
-
-    @NaturalId
-    @NotBlank
-    @Size(min=1, max = 10)
+    @Column(name="className", insertable=true, updatable=true, unique=true, nullable=false)
+    @Size(min=1, max = 4)
     private String className;
 
     @NotNull
@@ -43,8 +34,8 @@ public class SingleClass{
 
     @OneToMany(fetch = FetchType.LAZY) 
     @JoinTable(name = "student_class", 
-    	joinColumns = @JoinColumn(name = "class_id", referencedColumnName="id"), 
-    	inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName="id"))
+    	joinColumns = @JoinColumn(name = "class_id", referencedColumnName="className"), 
+    	inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName="admissionNum"))
     private Set<Student> students = new HashSet<>();
 
     public SingleClass(){}
@@ -54,9 +45,6 @@ public class SingleClass{
         this.teacherId = teacherId;
     }
 
-    public Long getId(){
-        return id;
-    }
 
     public void setClassName(String className){
         this.className = className;
