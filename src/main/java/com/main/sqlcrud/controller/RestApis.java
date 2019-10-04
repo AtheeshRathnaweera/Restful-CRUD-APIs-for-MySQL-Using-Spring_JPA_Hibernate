@@ -19,11 +19,14 @@ import javax.validation.Valid;
 
 import com.main.sqlcrud.message.request.NewClassForm;
 import com.main.sqlcrud.message.request.StudentForm;
+import com.main.sqlcrud.message.request.TeacherForm;
 import com.main.sqlcrud.message.response.ResponseMessage;
 import com.main.sqlcrud.model.Student;
+import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.model.SingleClass;
 import com.main.sqlcrud.repository.ClassRepository;
 import com.main.sqlcrud.repository.StudentRepository;
+import com.main.sqlcrud.repository.TeacherRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,6 +42,9 @@ public class RestApis {
 
     @Autowired
     ClassRepository classRepository;
+
+    @Autowired
+    TeacherRepository teacherRepository;
 
     @PostMapping("/add")
     public ResponseEntity<?> addingUser(@Valid @RequestBody StudentForm studentRequest) {
@@ -141,6 +147,21 @@ public class RestApis {
         return new ResponseEntity<>(new ResponseMessage("api worked!"), HttpStatus.CREATED);
     }
 
+
+    @PostMapping("/addTeacher")
+    public ResponseEntity<?> addingTeacher(@Valid @RequestBody TeacherForm newTeacher) {
+
+        if (teacherRepository.existsById(newTeacher.getNIC())) {
+           return new ResponseEntity<>(new ResponseMessage("Failed -> teacher is already registered!"),
+                    HttpStatus.BAD_REQUEST);
+       }
+
+        Teachers temp = new Teachers(newTeacher.getNIC(),newTeacher.getFirstName(), newTeacher.getLastName(), newTeacher.getAddress(), 
+                newTeacher.getTelephoneNumber());
+        teacherRepository.save(temp);
+
+        return new ResponseEntity<>(new ResponseMessage("Teacher added successfully!"), HttpStatus.CREATED);
+    }
 
     
 }
