@@ -11,7 +11,7 @@ public class NewClassForm {
     private String className;
 
     @NotNull
-    private Long teacherId;
+    private String teacherNic;
 
     private List<Long> students;//Store student s admission numbers
 
@@ -23,12 +23,12 @@ public class NewClassForm {
         return className;
     }
 
-    public void setTeacherId(Long teacherId){
-        this.teacherId = teacherId;
+    public void setTeacherId(String teacherNic){
+        this.teacherNic = teacherNic;
     }
 
-    public Long getTeacherId(){
-        return teacherId;
+    public String getTeacherNic(){
+        return teacherNic;
     }
 
     public void setStudents(List<Long> students){

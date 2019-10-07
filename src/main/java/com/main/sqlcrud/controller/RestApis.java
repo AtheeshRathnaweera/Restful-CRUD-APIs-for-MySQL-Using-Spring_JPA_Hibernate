@@ -121,7 +121,7 @@ public class RestApis {
         List<Long> strStudents = newClassRequest.getStudents();
 
         System.out.println("received students : "+strStudents+"  "+"class name: "
-                        +newClassRequest.getClassName()+" teacher : "+newClassRequest.getTeacherId());
+                        +newClassRequest.getClassName()+" teacher : "+newClassRequest.getTeacherNic());
 
         Set<Student> students = new HashSet<>();
 
@@ -139,7 +139,7 @@ public class RestApis {
 
 		});
 
-        SingleClass tempClass = new SingleClass(newClassRequest.getClassName(),newClassRequest.getTeacherId());
+        SingleClass tempClass = new SingleClass(newClassRequest.getClassName(),newClassRequest.getTeacherNic());
         tempClass.setStudents(students);
 
         classRepository.save(tempClass);
@@ -162,6 +162,24 @@ public class RestApis {
 
         return new ResponseEntity<>(new ResponseMessage("Teacher added successfully!"), HttpStatus.CREATED);
     }
+
+
+
+    @GetMapping("/getClassStudents/{className}")//get all the students in the class
+    public SingleClass gettingStudents(@PathVariable(value = "className") String className) {
+
+        return classRepository.findByclassName(className);
+
+    }
+
+    @GetMapping("/getClassStudentsByTeacher/{teacherNic}")//get all the students in the class
+    public SingleClass gettingStudentsByTeacher(@PathVariable(value = "teacherNic") String teacherNic) {
+        
+        return classRepository.findByTeacherNic(teacherNic);
+
+    }
+
+
 
     
 }

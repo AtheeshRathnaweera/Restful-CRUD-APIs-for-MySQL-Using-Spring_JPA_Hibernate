@@ -1,6 +1,5 @@
 package com.main.sqlcrud.repository;
 
-import java.util.List;
 
 import com.main.sqlcrud.model.Teachers;
 

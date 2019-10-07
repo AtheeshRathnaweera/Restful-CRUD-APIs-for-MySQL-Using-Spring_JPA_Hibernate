@@ -6,19 +6,13 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
-
-import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Table(name="class")
@@ -30,7 +24,8 @@ public class SingleClass{
     private String className;
 
     @NotNull
-    private Long teacherId;
+    @Size(min=9, max = 11)
+    private String teacherNic;
 
     @OneToMany(fetch = FetchType.LAZY) 
     @JoinTable(name = "student_class", 
@@ -40,11 +35,10 @@ public class SingleClass{
 
     public SingleClass(){}
 
-    public SingleClass(String className,Long teacherId){
+    public SingleClass(String className,String teacherNic){
         this.className = className;
-        this.teacherId = teacherId;
+        this.teacherNic = teacherNic;
     }
-
 
     public void setClassName(String className){
         this.className = className;
@@ -54,12 +48,12 @@ public class SingleClass{
         return className;
     }
 
-    public void setTeacherId(Long teacherId){
-        this.teacherId = teacherId;
+    public void setTeacherNic(String teacherNic){
+        this.teacherNic = teacherNic;
     }
 
-    public Long getTeacherId(){
-        return teacherId;
+    public String getTeacherNic(){
+        return teacherNic;
     }
 
     public void setStudents(Set<Student> students){
