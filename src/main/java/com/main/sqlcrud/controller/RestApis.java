@@ -1,5 +1,6 @@
 package com.main.sqlcrud.controller;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -86,6 +88,7 @@ public class RestApis {
                                                                                                   // admission number as
                                                                                                   // their user ID
 
+                                                                                                  
             if (!userRepository.existsById(userRequest.getUserId())) {
                 User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
                 userRepository.save(newUser);
@@ -236,10 +239,13 @@ public class RestApis {
    
 
     //Get students from the db
+    
     @GetMapping("/getStudent/{admissionNum}") // get student by admission number
-    public Student gettingUser(@PathVariable(value = "admissionNum") Long admissionNumber) {
-        System.out.println("admission id : " + admissionNumber.toString());
-        return studentRepository.findByAdmissionNumber(admissionNumber);
+    public Student gettingUser(@PathVariable(value = "admissionNum") String admissionNumber) {
+        
+        long number = new Long(admissionNumber).longValue();
+        System.out.println("admission id : " + number);
+        return studentRepository.findByAdmissionNumber(number);
 
     }
 
@@ -265,5 +271,19 @@ public class RestApis {
         return teacherRepository.findByNic(teacherNic);
 
     }
+
+    //Get students count
+    @GetMapping("/users/studentUsersCount")
+    public ArrayList<?> gettingStudentUsersCount() {
+        return userRepository.getStudentUsersCount();
+    }
+
+    //Get teachers count
+    @GetMapping("/users/teacherUsersCount")
+    public ArrayList<Long> gettingTeacherUsersCount() {
+        return userRepository.getTeacherUsersCount();
+    }
+
+
 
 }

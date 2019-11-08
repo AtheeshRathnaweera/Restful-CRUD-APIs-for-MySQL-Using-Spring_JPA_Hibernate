@@ -1,5 +1,6 @@
 package com.main.sqlcrud.repository;
 
+
 import com.main.sqlcrud.model.Student;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,8 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
     Boolean existsByAdmissionNumber(Long admissionNumber);
 
     Student findByAdmissionNumber(Long admissionNumber);
+
+    
     
 }
 
