@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TeacherRepository extends JpaRepository<Teachers, String>{
-     
+    Boolean existsByNic(String nic);
+
+    Teachers findByNic(String nic);
 
     
 }
