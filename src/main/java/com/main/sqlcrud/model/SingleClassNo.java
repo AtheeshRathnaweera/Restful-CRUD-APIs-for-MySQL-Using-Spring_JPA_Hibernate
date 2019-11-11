@@ -8,15 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 
 @Entity
-@Table(name="class")
-public class SingleClass{
+//@Table(name="class")
+public class SingleClassNo{
     
     @Id
     @Column(name="className", insertable=true, updatable=true, unique=true, nullable=false)
@@ -33,9 +32,9 @@ public class SingleClass{
     	inverseJoinColumns = @JoinColumn(name = "student_id", referencedColumnName="admissionNum"))
     private Set<Student> students = new HashSet<>();
 
-    public SingleClass(){}
+    public SingleClassNo(){}
 
-    public SingleClass(String className,String teacherNic){
+    public SingleClassNo(String className,String teacherNic){
         this.className = className;
         this.teacherNic = teacherNic;
     }

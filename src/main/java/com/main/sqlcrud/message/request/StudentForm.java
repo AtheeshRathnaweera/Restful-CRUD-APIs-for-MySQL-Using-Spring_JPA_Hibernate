@@ -31,6 +31,9 @@ public class StudentForm {
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
     private Date enrolledDate;
 
+    @NotNull
+    private Integer currentClassId;
+
     public void setAdmissionNumber(Long admissionNumber){
         this.admissionNumber = admissionNumber;
     }
@@ -78,4 +81,12 @@ public class StudentForm {
     public Date getEnrolledDate(){
         return enrolledDate;
     }
+
+	public Integer getCurrentClassId() {
+		return currentClassId;
+	}
+
+	public void setCurrentClassId(Integer currentClassId) {
+		this.currentClassId = currentClassId;
+	}
 }

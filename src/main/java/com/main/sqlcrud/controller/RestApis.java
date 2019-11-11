@@ -11,7 +11,7 @@ import com.main.sqlcrud.message.request.NewClassForm;
 import com.main.sqlcrud.message.request.StudentForm;
 import com.main.sqlcrud.message.request.TeacherForm;
 import com.main.sqlcrud.message.response.ResponseMessage;
-import com.main.sqlcrud.model.SingleClass;
+import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
 import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.model.User;
@@ -143,9 +143,16 @@ public class RestApis {
                     HttpStatus.BAD_REQUEST);
         }
 
+        int currentClassId = studentRequest.getCurrentClassId();
+        
+        //Get the Class details
+        SClass temp = classRepository.findClassById(currentClassId);
+
+        //Create the student object
         Student student = new Student(studentRequest.getAdmissionNumber(), studentRequest.getFirstName(),
                 studentRequest.getLastName(), studentRequest.getBday(), studentRequest.getAddress(),
-                studentRequest.getEnrolledDate());
+                studentRequest.getEnrolledDate(),temp);
+
         studentRepository.save(student);
 
         return new ResponseEntity<>(new ResponseMessage("User registered successfully!"), HttpStatus.CREATED);
@@ -159,9 +166,14 @@ public class RestApis {
                     HttpStatus.BAD_REQUEST);
         }
 
-        Teachers temp = new Teachers(newTeacher.getNIC(), newTeacher.getFirstName(), newTeacher.getLastName(),
-                newTeacher.getAddress(), newTeacher.getTelephoneNumber());
-        teacherRepository.save(temp);
+        int currentClassId = newTeacher.getCurrentClassId();
+
+        //Get the Class details
+        SClass temp = classRepository.findClassById(currentClassId);
+
+        Teachers tempTeacher = new Teachers(newTeacher.getNIC(), newTeacher.getFirstName(), newTeacher.getLastName(),
+                newTeacher.getAddress(), newTeacher.getTelephoneNumber(),newTeacher.getStatus(),temp);
+        teacherRepository.save(tempTeacher);
 
         return new ResponseEntity<>(new ResponseMessage("Teacher added successfully!"), HttpStatus.CREATED);
     }
@@ -169,34 +181,21 @@ public class RestApis {
     @PostMapping("/addClass")
     public ResponseEntity<?> addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
 
-        List<Long> strStudents = newClassRequest.getStudents();
+        SClass tempClass = new SClass(newClassRequest.getGrade(), newClassRequest.getName());
 
-        System.out.println("received students : " + strStudents + "  " + "class name: " + newClassRequest.getClassName()
-                + " teacher : " + newClassRequest.getTeacherNic());
+        ArrayList<?> result = classRepository.getClassIdByGradeAndName(newClassRequest.getGrade(),newClassRequest.getName());
 
-        Set<Student> students = new HashSet<>();
+    
+        if(result.isEmpty()){
+            System.out.println("class not exists");
+            classRepository.save(tempClass);
+            return new ResponseEntity<>(new ResponseMessage("class added successfully!"), HttpStatus.CREATED);
+           
+        }else{
+            System.out.println("class exists.");
+            return new ResponseEntity<>(new ResponseMessage("class added failed!"), HttpStatus.BAD_REQUEST);
+        }
 
-        strStudents.forEach(admissionNum -> {
-
-            Student tempStudent = studentRepository.findByAdmissionNumber(admissionNum);
-
-            if (tempStudent == null) {
-                System.out.println("No students found.");
-            } else {
-                System.out.println(" found student : " + tempStudent.getAdmissionNumber() + "  "
-                        + tempStudent.getFirstName() + " " + tempStudent.getAdmissionNumber());
-            }
-
-            students.add(tempStudent);
-
-        });
-
-        SingleClass tempClass = new SingleClass(newClassRequest.getClassName(), newClassRequest.getTeacherNic());
-        tempClass.setStudents(students);
-
-        classRepository.save(tempClass);
-
-        return new ResponseEntity<>(new ResponseMessage("api worked!"), HttpStatus.CREATED);
     }
     //Students,Teachers, Class adding apis (ADMIN only)
 
@@ -248,20 +247,6 @@ public class RestApis {
         return studentRepository.findByAdmissionNumber(number);
 
     }
-
-    @GetMapping("/getClassStudents/{className}") // get all the students in the class
-    public SingleClass gettingStudents(@PathVariable(value = "className") String className) {
-
-        return classRepository.findByclassName(className);
-
-    }
-
-    @GetMapping("/getClassStudentsByTeacher/{teacherNic}") // get all the students in the class
-    public SingleClass gettingStudentsByTeacher(@PathVariable(value = "teacherNic") String teacherNic) {
-
-        return classRepository.findByTeacherNic(teacherNic);
-
-    }
     //get students from the db
 
     //get teacher details
@@ -283,6 +268,23 @@ public class RestApis {
     public ArrayList<Long> gettingTeacherUsersCount() {
         return userRepository.getTeacherUsersCount();
     }
+
+    //Get all classes of a grade
+    @GetMapping("/classes/getClasses/{grade}")
+    public List<SClass> gettingClasses(@PathVariable(value = "grade") int grade) {
+        List<SClass> result = classRepository.findByGrade(grade);
+        System.out.println("result : "+result.size());
+        return result;
+    }
+
+    //Get students of a class
+    @GetMapping("/classes/getStudents/{classId}")
+    public List<Student> gettingStudents(@PathVariable(value = "classId") int classId) {
+        List<Student> result = studentRepository.getStudentsInAClass(classId);
+        System.out.println("result : "+result.size()+" "+ result.toString());
+        return result;
+    }
+
 
 
 

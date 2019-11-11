@@ -5,7 +5,7 @@ target/
 !**/src/test/**
 
 #properties
-src/main/application.properties
+.src/main/application.properties
 
 
 

@@ -20,6 +20,12 @@ public class TeacherForm {
     @NotNull
     private Long telephoneNumber;
 
+    @NotBlank
+    private String status;
+
+    @NotNull
+    private Integer currentClassId;
+    
     public void setNIC(String NIC){
         this.NIC = NIC;
     }
@@ -58,6 +64,22 @@ public class TeacherForm {
 
     public Long getTelephoneNumber(){
         return telephoneNumber;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getCurrentClassId() {
+        return currentClassId;
+    }
+
+    public void setCurrentClassId(Integer currentClassId) {
+        this.currentClassId = currentClassId;
     }
 }
 
