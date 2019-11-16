@@ -1,7 +1,6 @@
 package com.main.sqlcrud.repository;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.main.sqlcrud.model.Student;
 
@@ -17,7 +16,7 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
     Student findByAdmissionNumber(Long admissionNumber);
 
     @Query("SELECT s FROM Student s Where s.currentClass.id= ?#{[0]}")
-	List<Student> getStudentsInAClass(int classId);
+	ArrayList<Student> getStudentsInAClass(int classId);
 
     
     

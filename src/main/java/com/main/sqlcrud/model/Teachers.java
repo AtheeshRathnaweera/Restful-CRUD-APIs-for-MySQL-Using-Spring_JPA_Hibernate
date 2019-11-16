@@ -12,26 +12,27 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name="teachers")
-public class Teachers{
-    
+@Table(name = "teachers")
+public class Teachers {
+
     @Id
-    @Column(insertable = true, updatable = true,unique = true,nullable = false)
-    @Size(min=9, max = 11)
+    @Column(insertable = true, updatable = true, unique = true, nullable = false)
+    @Size(min = 9, max = 11)
     private String nic;
 
     @NotBlank
-    @Size(min=3, max = 50)
+    @Size(min = 3, max = 50)
     private String firstName;
 
     @NotBlank
-    @Size(min=3, max = 50)
+    @Size(min = 3, max = 50)
     private String lastName;
 
     @NotBlank
-    @Size(min=3, max = 50)
+    @Size(min = 3, max = 50)
     private String address;
 
     @NotNull
@@ -40,25 +41,30 @@ public class Teachers{
     @NotBlank
     private String status;
 
+    @NotBlank
+    private String gender;
+
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY) 
-    @JoinTable(name = "teacher_class", 
-    	joinColumns = @JoinColumn(name = "teacher_nic", referencedColumnName="nic"), 
-    	inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName="id"))
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinTable(name = "teacher_class", joinColumns = @JoinColumn(name = "teacher_nic", referencedColumnName = "nic"), inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName = "id"))
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private SClass currentClass;
 
     public Teachers() {
     }
 
+    
     public Teachers(@Size(min = 9, max = 11) String nic, @NotBlank @Size(min = 3, max = 50) String firstName,
             @NotBlank @Size(min = 3, max = 50) String lastName, @NotBlank @Size(min = 3, max = 50) String address,
-            @NotNull Long telephoneNumber, @NotBlank String status, @NotNull SClass currentClass) {
+            @NotNull Long telephoneNumber, @NotBlank String status, @NotBlank String gender,
+            @NotNull SClass currentClass) {
         this.nic = nic;
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
         this.telephoneNumber = telephoneNumber;
         this.status = status;
+        this.gender = gender;
         this.currentClass = currentClass;
     }
 
@@ -118,10 +124,24 @@ public class Teachers{
         this.currentClass = currentClass;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    @Override
+    public String toString() {
+        return "Teachers [address=" + address + ", currentClass=" + currentClass + ", firstName=" + firstName
+                + ", gender=" + gender + ", lastName=" + lastName + ", nic=" + nic + ", status=" + status
+                + ", telephoneNumber=" + telephoneNumber + "]";
+    }
 
     
- 
 
 
+    
 
 }

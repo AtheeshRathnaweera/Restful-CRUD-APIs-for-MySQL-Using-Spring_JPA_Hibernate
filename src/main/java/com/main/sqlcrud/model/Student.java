@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 
 @Entity
@@ -35,25 +36,27 @@ public class Student{
     private String lastName;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "UTC")
     private Date bday;
 
     @NotBlank
     private String address;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "UTC")
     private Date enrolledDate;
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY) 
     @JoinTable(name = "student_class", 
     	joinColumns = @JoinColumn(name = "student_id", referencedColumnName="admissionNum"), 
-    	inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName="id"))
+        inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName="id"))
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
     private SClass currentClass;
 
     public Student() {
     }
+
 
     public Student(Long admissionNumber, @NotBlank @Size(min = 3, max = 50) String firstName,
             @NotBlank @Size(min = 3, max = 50) String lastName, @NotNull Date bday, @NotBlank String address,

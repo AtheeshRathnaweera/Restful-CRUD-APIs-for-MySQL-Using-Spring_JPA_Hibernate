@@ -23,6 +23,9 @@ public class TeacherForm {
     @NotBlank
     private String status;
 
+    @NotBlank
+    private String gender;
+
     @NotNull
     private Integer currentClassId;
     
@@ -81,6 +84,16 @@ public class TeacherForm {
     public void setCurrentClassId(Integer currentClassId) {
         this.currentClassId = currentClassId;
     }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    
 }
 
 

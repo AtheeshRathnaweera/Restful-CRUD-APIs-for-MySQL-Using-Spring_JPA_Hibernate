@@ -136,26 +136,36 @@ public class RestApis {
 
     //Students,Teachers adding apis (ADMIN only)
     @PostMapping("/addStudent")
-    public ResponseEntity<?> addingUser(@Valid @RequestBody StudentForm studentRequest) {
+    public Boolean addingUser(@Valid @RequestBody StudentForm studentRequest) {
 
-        if (studentRepository.existsByAdmissionNumber(studentRequest.getAdmissionNumber())) {
-            return new ResponseEntity<>(new ResponseMessage("Failed -> user is already registered!"),
-                    HttpStatus.BAD_REQUEST);
+        Student recResult = null;
+        Boolean response = false;
+
+        if (!studentRepository.existsByAdmissionNumber(studentRequest.getAdmissionNumber())) {
+            int currentClassId = studentRequest.getCurrentClassId();
+        
+            //Get the Class details
+            SClass temp = classRepository.findClassById(currentClassId);
+    
+            //Create the student object
+            Student student = new Student(studentRequest.getAdmissionNumber(), studentRequest.getFirstName(),
+                    studentRequest.getLastName(), studentRequest.getBday(), studentRequest.getAddress(),
+                    studentRequest.getEnrolledDate(),temp);
+    
+            recResult = studentRepository.save(student);
+    
+            System.out.println("save return : "+recResult.toString());
+
         }
 
-        int currentClassId = studentRequest.getCurrentClassId();
+        if(recResult != null){
+            response = true;
+        }
+
+        return response;
+   
+
         
-        //Get the Class details
-        SClass temp = classRepository.findClassById(currentClassId);
-
-        //Create the student object
-        Student student = new Student(studentRequest.getAdmissionNumber(), studentRequest.getFirstName(),
-                studentRequest.getLastName(), studentRequest.getBday(), studentRequest.getAddress(),
-                studentRequest.getEnrolledDate(),temp);
-
-        studentRepository.save(student);
-
-        return new ResponseEntity<>(new ResponseMessage("User registered successfully!"), HttpStatus.CREATED);
     }
 
     @PostMapping("/addTeacher")
@@ -172,14 +182,14 @@ public class RestApis {
         SClass temp = classRepository.findClassById(currentClassId);
 
         Teachers tempTeacher = new Teachers(newTeacher.getNIC(), newTeacher.getFirstName(), newTeacher.getLastName(),
-                newTeacher.getAddress(), newTeacher.getTelephoneNumber(),newTeacher.getStatus(),temp);
+                newTeacher.getAddress(), newTeacher.getTelephoneNumber(),newTeacher.getStatus(),newTeacher.getGender(),temp);
         teacherRepository.save(tempTeacher);
 
         return new ResponseEntity<>(new ResponseMessage("Teacher added successfully!"), HttpStatus.CREATED);
     }
 
     @PostMapping("/addClass")
-    public ResponseEntity<?> addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
+    public boolean addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
 
         SClass tempClass = new SClass(newClassRequest.getGrade(), newClassRequest.getName());
 
@@ -189,11 +199,11 @@ public class RestApis {
         if(result.isEmpty()){
             System.out.println("class not exists");
             classRepository.save(tempClass);
-            return new ResponseEntity<>(new ResponseMessage("class added successfully!"), HttpStatus.CREATED);
+            return true;
            
         }else{
             System.out.println("class exists.");
-            return new ResponseEntity<>(new ResponseMessage("class added failed!"), HttpStatus.BAD_REQUEST);
+            return false;
         }
 
     }
@@ -279,9 +289,16 @@ public class RestApis {
 
     //Get students of a class
     @GetMapping("/classes/getStudents/{classId}")
-    public List<Student> gettingStudents(@PathVariable(value = "classId") int classId) {
-        List<Student> result = studentRepository.getStudentsInAClass(classId);
-        System.out.println("result : "+result.size()+" "+ result.toString());
+    public ArrayList<Student> gettingStudents(@PathVariable(value = "classId") int classId) {
+        ArrayList<Student> result = studentRepository.getStudentsInAClass(classId);
+        System.out.println("result size : "+result.size());
+        return result;
+    }
+
+    //Get class teacher
+    @GetMapping("/classes/getTeacher/{classId}")
+    public Teachers getClassTeacher(@PathVariable(value = "classId") int classId) {
+        Teachers result = teacherRepository.getTeacherByClass(classId);
         return result;
     }
 

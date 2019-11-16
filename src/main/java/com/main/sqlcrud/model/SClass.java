@@ -31,6 +31,10 @@ public class SClass{
         this.name = name;
     }
 
+    public SClass(Integer id) {
+        this.id = id;
+    }
+
     
     public Integer getId() {
         return id;
@@ -61,6 +65,8 @@ public class SClass{
     public String toString() {
         return "SClass [grade=" + grade + ", id=" + id + ", name=" + name + "]";
     }
+
+ 
 
    
 

@@ -21,14 +21,14 @@ public class StudentForm {
     private String lastName;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "UTC")
     private Date bday;
 
     @NotBlank
     private String address;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="dd-MM-yyyy", timezone = "UTC")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "UTC")
     private Date enrolledDate;
 
     @NotNull
