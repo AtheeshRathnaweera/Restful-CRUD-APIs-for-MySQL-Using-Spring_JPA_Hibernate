@@ -23,6 +23,10 @@ public class User{
     public User() {
     }
 
+    public User(String userId, @NotBlank String password) {
+        this.userId = userId;
+        this.password = password;
+    }
     
     public User(String userId, @NotBlank String password, String userRole) {
         this.userId = userId;
@@ -60,6 +64,8 @@ public class User{
         return "User [password=" + password + ", userId=" + userId + ", userRole=" + userRole
                 + "]";
     }
+
+  
 
    
 

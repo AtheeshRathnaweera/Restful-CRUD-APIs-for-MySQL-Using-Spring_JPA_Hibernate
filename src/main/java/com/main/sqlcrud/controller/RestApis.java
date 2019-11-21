@@ -5,17 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Entity;
 import javax.validation.Valid;
 
-import com.main.sqlcrud.message.request.NewClassForm;
-import com.main.sqlcrud.message.request.StudentForm;
-import com.main.sqlcrud.message.request.TeacherForm;
-import com.main.sqlcrud.message.response.ResponseMessage;
-import com.main.sqlcrud.model.SClass;
-import com.main.sqlcrud.model.Student;
+
 import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.model.User;
 import com.main.sqlcrud.repository.ClassRepository;
+import com.main.sqlcrud.repository.OperatorRepository;
 import com.main.sqlcrud.repository.StudentRepository;
 import com.main.sqlcrud.repository.TeacherRepository;
 import com.main.sqlcrud.repository.UserRepository;
@@ -51,6 +48,9 @@ public class RestApis {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    OperatorRepository operatorRepository;
+
     // Login api
     @PostMapping("/login")
     public User logginUser(@Valid @RequestBody User userLogRequest) {
@@ -84,24 +84,11 @@ public class RestApis {
 
         User response = new User();
 
-        if (studentRepository.existsByAdmissionNumber(Long.parseLong(userRequest.getUserId()))) { // Student use
-                                                                                                  // admission number as
-                                                                                                  // their user ID
-
+        if (!userRequest.getUserRole().equals(null) && studentRepository.existsByAdmissionNumber(Long.parseLong(userRequest.getUserId())) && !userRepository.existsById(userRequest.getUserId())) { // Student use
                                                                                                   
-            if (!userRepository.existsById(userRequest.getUserId())) {
                 User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
-                userRepository.save(newUser);
-                response.setUserId(newUser.getUserId());
-                response.setUserRole(newUser.getUserRole());
-            }else{
-                System.out.println("User id already exists.");
-            }
-
-        } else {
-            System.out.println("User id not exists in students table.");
-
-        }
+                response = userRepository.save(newUser);
+        } 
 
         return response;
 
@@ -112,160 +99,16 @@ public class RestApis {
 
         User response = new User();
 
-        if (teacherRepository.existsByNic(userRequest.getUserId())) { // Teachers use NIC as their id
-                                                                                                  
-            if (!userRepository.existsById(userRequest.getUserId())) {
-                User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
-                userRepository.save(newUser);
-                response.setUserId(newUser.getUserId());
-                response.setUserRole(newUser.getUserRole());
-            }else{
-                System.out.println("User id already exists.");
-            }
-
-        } else {
-            System.out.println("User id not exists in teachers table.");
-
+        if (!userRequest.getUserRole().equals(null) && teacherRepository.existsByNic(userRequest.getUserId()) && !userRepository.existsById(userRequest.getUserId())) { // Teachers use NIC as their id
+            User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
+            response = userRepository.save(newUser);
         }
-
         return response;
 
     }
     
-    //Signin apis
 
-    //Students,Teachers adding apis (ADMIN only)
-    @PostMapping("/addStudent")
-    public Boolean addingUser(@Valid @RequestBody StudentForm studentRequest) {
 
-        Student recResult = null;
-        Boolean response = false;
-
-        if (!studentRepository.existsByAdmissionNumber(studentRequest.getAdmissionNumber())) {
-            int currentClassId = studentRequest.getCurrentClassId();
-        
-            //Get the Class details
-            SClass temp = classRepository.findClassById(currentClassId);
-    
-            //Create the student object
-            Student student = new Student(studentRequest.getAdmissionNumber(), studentRequest.getFirstName(),
-                    studentRequest.getLastName(), studentRequest.getBday(), studentRequest.getAddress(),
-                    studentRequest.getEnrolledDate(),temp);
-    
-            recResult = studentRepository.save(student);
-    
-            System.out.println("save return : "+recResult.toString());
-
-        }
-
-        if(recResult != null){
-            response = true;
-        }
-
-        return response;
-   
-
-        
-    }
-
-    @PostMapping("/addTeacher")
-    public ResponseEntity<?> addingTeacher(@Valid @RequestBody TeacherForm newTeacher) {
-
-        if (teacherRepository.existsById(newTeacher.getNIC())) {
-            return new ResponseEntity<>(new ResponseMessage("Failed -> teacher is already registered!"),
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        int currentClassId = newTeacher.getCurrentClassId();
-
-        //Get the Class details
-        SClass temp = classRepository.findClassById(currentClassId);
-
-        Teachers tempTeacher = new Teachers(newTeacher.getNIC(), newTeacher.getFirstName(), newTeacher.getLastName(),
-                newTeacher.getAddress(), newTeacher.getTelephoneNumber(),newTeacher.getStatus(),newTeacher.getGender(),temp);
-        teacherRepository.save(tempTeacher);
-
-        return new ResponseEntity<>(new ResponseMessage("Teacher added successfully!"), HttpStatus.CREATED);
-    }
-
-    @PostMapping("/addClass")
-    public boolean addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
-
-        SClass tempClass = new SClass(newClassRequest.getGrade(), newClassRequest.getName());
-
-        ArrayList<?> result = classRepository.getClassIdByGradeAndName(newClassRequest.getGrade(),newClassRequest.getName());
-
-    
-        if(result.isEmpty()){
-            System.out.println("class not exists");
-            classRepository.save(tempClass);
-            return true;
-           
-        }else{
-            System.out.println("class exists.");
-            return false;
-        }
-
-    }
-    //Students,Teachers, Class adding apis (ADMIN only)
-
-    @PutMapping("/updateStudent")
-    public ResponseEntity<?> updateAStudent(@Valid @RequestBody StudentForm student) {
-
-        Student temp = studentRepository.findByAdmissionNumber(student.getAdmissionNumber());
-
-        if (temp != null) {
-            temp.setFirstName(student.getFirstName());
-            temp.setLastName(student.getLastName());
-            temp.setBday(student.getBday());
-            temp.setAddress(student.getAddress());
-            // temp.setAdmissionNumber(admissionNumber);
-            temp.setEnrolledDate(student.getEnrolledDate());
-
-            studentRepository.save(temp);
-
-            return new ResponseEntity<>(new ResponseMessage("Updated successfully!"), HttpStatus.OK);
-
-        } else {
-            return new ResponseEntity<>(new ResponseMessage("Student not found under this admission number"),
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @DeleteMapping("/deleteStudent/{admissionNumber}")
-    public ResponseEntity<?> deleteStudent(@PathVariable(value = "admissionNumber") Long admissionNumber) {
-        Student temp = studentRepository.findByAdmissionNumber(admissionNumber);
-
-        if (temp != null) {
-            studentRepository.delete(temp);
-            return new ResponseEntity<>(new ResponseMessage("deleted successfully!"), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new ResponseMessage("Student not found under this admission number"),
-                    HttpStatus.BAD_REQUEST);
-        }
-
-    }
-   
-
-    //Get students from the db
-    
-    @GetMapping("/getStudent/{admissionNum}") // get student by admission number
-    public Student gettingUser(@PathVariable(value = "admissionNum") String admissionNumber) {
-        
-        long number = new Long(admissionNumber).longValue();
-        System.out.println("admission id : " + number);
-        return studentRepository.findByAdmissionNumber(number);
-
-    }
-    //get students from the db
-
-    //get teacher details
-    @GetMapping("/getTeacher/{teacherNic}") // get teacher details in the class
-    public Teachers getTeacherDetails(@PathVariable(value = "teacherNic") String teacherNic) {
-
-        return teacherRepository.findByNic(teacherNic);
-
-    }
 
     //Get students count
     @GetMapping("/users/studentUsersCount")
@@ -279,28 +122,9 @@ public class RestApis {
         return userRepository.getTeacherUsersCount();
     }
 
-    //Get all classes of a grade
-    @GetMapping("/classes/getClasses/{grade}")
-    public List<SClass> gettingClasses(@PathVariable(value = "grade") int grade) {
-        List<SClass> result = classRepository.findByGrade(grade);
-        System.out.println("result : "+result.size());
-        return result;
-    }
+ 
 
-    //Get students of a class
-    @GetMapping("/classes/getStudents/{classId}")
-    public ArrayList<Student> gettingStudents(@PathVariable(value = "classId") int classId) {
-        ArrayList<Student> result = studentRepository.getStudentsInAClass(classId);
-        System.out.println("result size : "+result.size());
-        return result;
-    }
-
-    //Get class teacher
-    @GetMapping("/classes/getTeacher/{classId}")
-    public Teachers getClassTeacher(@PathVariable(value = "classId") int classId) {
-        Teachers result = teacherRepository.getTeacherByClass(classId);
-        return result;
-    }
+    
 
 
 

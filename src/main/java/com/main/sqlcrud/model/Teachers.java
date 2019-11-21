@@ -44,7 +44,7 @@ public class Teachers {
     @NotBlank
     private String gender;
 
-    @NotNull
+   
     @OneToOne(fetch = FetchType.LAZY)
     @JoinTable(name = "teacher_class", joinColumns = @JoinColumn(name = "teacher_nic", referencedColumnName = "nic"), inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName = "id"))
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })

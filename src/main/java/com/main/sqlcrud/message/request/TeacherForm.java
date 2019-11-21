@@ -26,7 +26,6 @@ public class TeacherForm {
     @NotBlank
     private String gender;
 
-    @NotNull
     private Integer currentClassId;
     
     public void setNIC(String NIC){
