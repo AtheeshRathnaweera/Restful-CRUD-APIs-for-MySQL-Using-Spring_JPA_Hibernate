@@ -23,7 +23,7 @@ public class Student {
 
     @Id
     // @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name = "admissionNum", insertable = true, updatable = true, unique = true, nullable = false)
+    @Column(name = "admissionNumber", insertable = true, updatable = true, unique = true, nullable = false)
     private Long admissionNumber;
 
     @NotBlank
@@ -47,14 +47,26 @@ public class Student {
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "student_class", joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "admissionNum"), inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName = "id"))
+    @JoinTable(name = "student_class", joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "admissionNumber"), inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName = "id"))
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private SClass currentClass;
 
     @NotBlank
-    private String status; //current, unenrolled, past
+    private String status; // current, unenrolled, past
 
     public Student() {
+    }
+
+    public Student(@NotBlank @Size(min = 3, max = 50) String firstName,
+            @NotBlank @Size(min = 3, max = 50) String lastName, @NotNull Date bday, @NotBlank String address,
+            @NotNull Date enrolledDate, @NotNull SClass currentClass, @NotBlank String status) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.bday = bday;
+        this.address = address;
+        this.enrolledDate = enrolledDate;
+        this.currentClass = currentClass;
+        this.status = status;
     }
 
     public Student(Long admissionNumber, @NotBlank @Size(min = 3, max = 50) String firstName,
@@ -133,7 +145,6 @@ public class Student {
     public void setStatus(String status) {
         this.status = status;
     }
-    
 
     @Override
     public String toString() {
@@ -141,8 +152,5 @@ public class Student {
                 + ", currentClass=" + currentClass + ", enrolledDate=" + enrolledDate + ", firstName=" + firstName
                 + ", lastName=" + lastName + ", status=" + status + "]";
     }
-
-  
-
 
 }

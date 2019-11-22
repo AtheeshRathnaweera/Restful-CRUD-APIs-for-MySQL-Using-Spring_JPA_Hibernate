@@ -16,6 +16,7 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
     Boolean existsByAdmissionNumber(Long admissionNumber);
 
     Student findByAdmissionNumber(Long admissionNumber);
+    List<Student> findByStatus(String status);
     List<Student> findByCurrentClass(SClass currentClass);
 
     @Query("SELECT s FROM Student s Where s.currentClass.id= ?#{[0]}")

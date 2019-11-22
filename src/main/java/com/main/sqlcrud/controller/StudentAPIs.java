@@ -1,5 +1,7 @@
 package com.main.sqlcrud.controller;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -7,8 +9,10 @@ import javax.validation.Valid;
 import com.main.sqlcrud.message.request.StudentForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
+import com.main.sqlcrud.model.StudentHistory;
 import com.main.sqlcrud.model.User;
 import com.main.sqlcrud.repository.ClassRepository;
+import com.main.sqlcrud.repository.StudentHistoryRepository;
 import com.main.sqlcrud.repository.StudentRepository;
 import com.main.sqlcrud.repository.UserRepository;
 
@@ -26,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/studentMg/student")
-public class StudentAPIs{
+public class StudentAPIs {
 
     @Autowired
     StudentRepository studentRepository;
@@ -37,53 +41,77 @@ public class StudentAPIs{
     @Autowired
     UserRepository userRepository;
 
-    @PostMapping("/add") //Operators only
-    public Boolean addingUser(@Valid @RequestBody StudentForm studentRequest) {
+    @Autowired
+    StudentHistoryRepository studentHistoryRepository;
+
+    @PostMapping("/add") // Operators only
+    public Student addingUser(@Valid @RequestBody StudentForm studentRequest) {
 
         Student recResult = null;
-        Boolean response = false;
+        int year = Calendar.getInstance().get(Calendar.YEAR);
 
         if (!studentRepository.existsByAdmissionNumber(studentRequest.getAdmissionNumber())) {
+
+            StudentHistory studentHistory = studentHistoryRepository.findByAdmissionNumber(studentRequest.getAdmissionNumber());
             int currentClassId = studentRequest.getCurrentClassId();
-        
-            //Get the Class details
-            SClass temp = classRepository.findClassById(currentClassId);
-    
-            //Create the student object
-            Student student = new Student(studentRequest.getAdmissionNumber(), studentRequest.getFirstName(),
-                    studentRequest.getLastName(), studentRequest.getBday(), studentRequest.getAddress(),
-                    studentRequest.getEnrolledDate(),temp,studentRequest.getStatus());
-    
-            recResult = studentRepository.save(student);
-    
-            System.out.println("save return : "+recResult.toString());
+
+            // Get the Class details
+            SClass temp = null;
+            List<SClass> tempClass = new ArrayList<>();
+
+            if(currentClassId != 0){
+                //save student if a class exists
+                temp = classRepository.findClassById(currentClassId);
+                tempClass.add(temp);
+                recResult = studentRepository.save(new Student(studentRequest.getAdmissionNumber(),
+                    studentRequest.getFirstName(), studentRequest.getLastName(), studentRequest.getBday(),
+                    studentRequest.getAddress(), studentRequest.getEnrolledDate(), temp, studentRequest.getStatus()));
+            }else{
+                tempClass = classRepository.findByGrade(0);
+                recResult = studentRepository.save(new Student(studentRequest.getAdmissionNumber(),
+                    studentRequest.getFirstName(), studentRequest.getLastName(), studentRequest.getBday(),
+                    studentRequest.getAddress(), studentRequest.getEnrolledDate(), tempClass.get(0), studentRequest.getStatus()));
+
+            }
+
+            if(studentHistory == null){
+                System.out.println("student history is null : "+recResult);
+                studentHistoryRepository.save(new StudentHistory(studentRequest.getAdmissionNumber(),year,tempClass.get(0)));
+            }else{
+                if(studentHistory.getYear() != year){
+                    studentHistoryRepository.save(new StudentHistory(studentRequest.getAdmissionNumber(),year,tempClass.get(0)));
+                }
+            }
+
+            System.out.println("save return : " + recResult.toString());
 
         }
 
-        if(recResult != null){
-            response = true;
-        }
+        System.out.println("done : "+recResult);
 
-        return response;
-   
-  
+        return recResult;
+
     }
 
-    @PutMapping("/update") //
+    @PutMapping("/update") // student pro
     public Student updateAStudent(@Valid @RequestBody StudentForm student) {
 
         Student temp = studentRepository.findByAdmissionNumber(student.getAdmissionNumber());
-        Student recStudent = new Student();
+
+        Student recStudent = new Student(); // store the updated student
+        int year = Calendar.getInstance().get(Calendar.YEAR);
 
         if (temp != null) {
-            temp.setFirstName(student.getFirstName());
-            temp.setLastName(student.getLastName());
-            temp.setBday(student.getBday());
-            temp.setAddress(student.getAddress());
-            temp.setEnrolledDate(student.getEnrolledDate());
-            temp.setStatus(student.getStatus());
+            StudentHistory studentHistory = studentHistoryRepository
+                    .findByAdmissionNumber(student.getAdmissionNumber());
+            SClass currentClass = classRepository.findClassById(student.getCurrentClassId());
 
-            recStudent= studentRepository.save(temp);
+            if (year != studentHistory.getYear()) {
+                studentHistoryRepository.save(new StudentHistory(student.getAdmissionNumber(), year, currentClass));
+            }
+
+            recStudent = studentRepository.save(new Student(student.getAdmissionNumber(),student.getFirstName(), student.getLastName(), student.getBday(),
+                            student.getAddress(), student.getEnrolledDate(), currentClass, student.getStatus()));
 
             return recStudent;
 
@@ -92,29 +120,28 @@ public class StudentAPIs{
         }
     }
 
-
     @DeleteMapping("/remove/{admissionNumber}")
     public Boolean removeStudent(@PathVariable(value = "admissionNumber") Long admissionNumber) {
         Student temp = studentRepository.findByAdmissionNumber(admissionNumber);
-        
+
         if (temp != null) {
             userRepository.delete(new User(Long.toString(admissionNumber)));
             temp.setStatus("blocked");
             studentRepository.save(temp);
             return true;
         } else {
-            //student not exist
+            // student not exist
             return false;
         }
 
     }
 
     @PutMapping("/reassign/{admissionNum}")
-    public Student reassignTeacher(@PathVariable(value="admissionNum") String admissionNum){
+    public Student reassignTeacher(@PathVariable(value = "admissionNum") String admissionNum) {
         Student existStudent = studentRepository.findByAdmissionNumber(Long.parseLong(admissionNum));
         Student updatedStudent = null;
 
-        if(!existStudent.equals(null)){
+        if (!existStudent.equals(null)) {
             existStudent.setStatus("active");
             updatedStudent = studentRepository.save(existStudent);
         }
@@ -122,17 +149,15 @@ public class StudentAPIs{
         return updatedStudent;
     }
 
-
-
     @GetMapping("/get/{admissionNum}") // get student by admission number
     public Student getStudentByAdmissionNum(@PathVariable(value = "admissionNum") String admissionNumber) {
-        
+
         long number = new Long(admissionNumber).longValue();
         return studentRepository.findByAdmissionNumber(number);
 
     }
 
-    //GET ALL STUDENTS COUNT
+    // GET ALL STUDENTS COUNT
     @GetMapping("/getallcount")
     public Long getAllStudentsCount() {
 
@@ -140,7 +165,7 @@ public class StudentAPIs{
 
     }
 
-    //GET ALL STUDENTS
+    // GET ALL STUDENTS
     @GetMapping("/getall")
     public List<Student> getAllStudents() {
 
@@ -149,14 +174,18 @@ public class StudentAPIs{
     }
 
     @GetMapping("/getallstudentbyclass/{id}")
-    public List<Student> getAllStudentsByClass(@PathVariable(value="id") String id) {
+    public List<Student> getAllStudentsByClass(@PathVariable(value = "id") String id) {
 
         return studentRepository.findByCurrentClass(new SClass(Integer.parseInt(id)));
 
     }
 
+    // GET STUDENT BY STATUS
+    @GetMapping("/getbystatus/{status}")
+    public List<Student> getByStatus(@PathVariable(value = "status") String status) {
 
+        return studentRepository.findByStatus(status);
 
-
+    }
 
 }

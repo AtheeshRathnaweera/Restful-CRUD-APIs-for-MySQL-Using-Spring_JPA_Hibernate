@@ -24,7 +24,7 @@ public class StudentHistory{
     private Long admissionNumber;
 
     @NotNull
-    private Long year;
+    private int year;
    
     @NotNull
     @OneToOne(fetch = FetchType.LAZY) 
@@ -36,7 +36,13 @@ public class StudentHistory{
     public StudentHistory() {
     }
 
-    public StudentHistory(Integer id, @NotNull Long admissionNumber, @NotNull Long year, @NotNull SClass classId) {
+    public StudentHistory(@NotNull Long admissionNumber, @NotNull int year, @NotNull SClass classId) {
+        this.admissionNumber = admissionNumber;
+        this.year = year;
+        this.classId = classId;
+    }
+    
+    public StudentHistory(Integer id, @NotNull Long admissionNumber, @NotNull int year, @NotNull SClass classId) {
         this.id = id;
         this.admissionNumber = admissionNumber;
         this.year = year;
@@ -59,11 +65,11 @@ public class StudentHistory{
         this.admissionNumber = admissionNumber;
     }
 
-    public Long getYear() {
+    public int getYear() {
         return year;
     }
 
-    public void setYear(Long year) {
+    public void setYear(int year) {
         this.year = year;
     }
 
@@ -80,6 +86,8 @@ public class StudentHistory{
         return "StudentHistory [admissionNumber=" + admissionNumber + ", classId=" + classId + ", id=" + id + ", year="
                 + year + "]";
     }
+
+   
 
     
     
