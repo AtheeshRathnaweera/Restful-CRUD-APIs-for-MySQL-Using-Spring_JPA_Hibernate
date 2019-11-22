@@ -98,18 +98,21 @@ public class RestApis {
     public User signinTeacher(@Valid @RequestBody User userRequest) {
 
         User response = new User();
+        Teachers teacher = teacherRepository.findByNic(userRequest.getUserId());
 
-        if (!userRequest.getUserRole().equals(null) && teacherRepository.existsByNic(userRequest.getUserId()) && !userRepository.existsById(userRequest.getUserId())) { // Teachers use NIC as their id
-            User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
-            response = userRepository.save(newUser);
+        if(!teacher.getStatus().equals("removed") && !userRequest.getUserRole().equals(null)){
+
+            if(!teacher.equals(null) && !userRepository.existsById(userRequest.getUserId())){
+                User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
+                response = userRepository.save(newUser);
+            }
+
         }
+       
         return response;
 
     }
     
-
-
-
     //Get students count
     @GetMapping("/users/studentUsersCount")
     public ArrayList<?> gettingStudentUsersCount() {

@@ -70,16 +70,16 @@ public class ClassAPIs {
 
     // Get students of a class
     @GetMapping("/getStudents/{classId}")
-    public ArrayList<Student> gettingStudents(@PathVariable(value = "classId") int classId) {
-        ArrayList<Student> result = studentRepository.getStudentsInAClass(classId);
+    public List<Student> gettingStudents(@PathVariable(value = "classId") int classId) {
+        List<Student> result = studentRepository.getStudentsInAClass(classId);
         System.out.println("result size : " + result.size());
         return result;
     }
 
     // Get class teacher
     @GetMapping("/getTeacher/{classId}")
-    public Teachers getClassTeacher(@PathVariable(value = "classId") int classId) {
-        Teachers result = teacherRepository.getTeacherByClass(classId);
+    public List<Teachers> getClassTeacher(@PathVariable(value = "classId") int classId) {
+        List<Teachers> result = teacherRepository.getTeacherByClass(classId);
         return result;
     }
 
