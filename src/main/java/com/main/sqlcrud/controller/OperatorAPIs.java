@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -84,15 +85,15 @@ public class OperatorAPIs{
     }
 
 
-    @DeleteMapping("/blockOperator/{nic}") //only for admin
-    public Boolean blockOperator(@PathVariable(value = "nic") String nic) {
+    @DeleteMapping("/remove/{nic}/{status}") //only for admin
+    public Boolean removeOperator(@PathVariable(value = "nic") String nic, @PathVariable(value="status") String status) {
 
         User tempUser = userRepository.findByUserId(nic);
         Operator tempOp = operatorRepository.findByNic(nic);
         
         if (tempOp != null) {
             userRepository.delete(tempUser);
-            tempOp.setStatus("blocked");
+            tempOp.setStatus(status);
 
             Operator temp = operatorRepository.save(tempOp);
 
@@ -105,6 +106,12 @@ public class OperatorAPIs{
             return false;
         }
 
+    }
+
+    //Get operators count
+    @GetMapping("/getallcount")
+    public Long getOperatorsCount() {
+        return operatorRepository.count();
     }
 
     
