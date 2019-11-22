@@ -25,8 +25,7 @@ public class StudentHistory{
 
     @NotNull
     private Long year;
-
-    
+   
     @NotNull
     @OneToOne(fetch = FetchType.LAZY) 
     @JoinTable(name = "student_class_history", 

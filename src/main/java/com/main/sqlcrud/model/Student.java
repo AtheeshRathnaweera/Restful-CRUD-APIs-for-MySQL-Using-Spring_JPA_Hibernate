@@ -17,50 +17,49 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 @Entity
-@Table(name="student")
-public class Student{
+@Table(name = "student")
+public class Student {
 
     @Id
-    //@GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="admissionNum", insertable=true, updatable=true, unique=true, nullable=false)
+    // @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name = "admissionNum", insertable = true, updatable = true, unique = true, nullable = false)
     private Long admissionNumber;
 
     @NotBlank
-    @Size(min=3, max = 50)
+    @Size(min = 3, max = 50)
     private String firstName;
 
     @NotBlank
-    @Size(min=3, max = 50)
+    @Size(min = 3, max = 50)
     private String lastName;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
     private Date bday;
 
     @NotBlank
     private String address;
 
     @NotNull
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "UTC")
     private Date enrolledDate;
 
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY) 
-    @JoinTable(name = "student_class", 
-    	joinColumns = @JoinColumn(name = "student_id", referencedColumnName="admissionNum"), 
-        inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName="id"))
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinTable(name = "student_class", joinColumns = @JoinColumn(name = "student_id", referencedColumnName = "admissionNum"), inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName = "id"))
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private SClass currentClass;
+
+    @NotBlank
+    private String status; //current, unenrolled, past
 
     public Student() {
     }
 
-
     public Student(Long admissionNumber, @NotBlank @Size(min = 3, max = 50) String firstName,
             @NotBlank @Size(min = 3, max = 50) String lastName, @NotNull Date bday, @NotBlank String address,
-            @NotNull Date enrolledDate, @NotNull SClass currentClass) {
+            @NotNull Date enrolledDate, @NotNull SClass currentClass, @NotBlank String status) {
         this.admissionNumber = admissionNumber;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -68,6 +67,7 @@ public class Student{
         this.address = address;
         this.enrolledDate = enrolledDate;
         this.currentClass = currentClass;
+        this.status = status;
     }
 
     public Long getAdmissionNumber() {
@@ -126,15 +126,23 @@ public class Student{
         this.currentClass = currentClass;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    
+
     @Override
     public String toString() {
         return "Student [address=" + address + ", admissionNumber=" + admissionNumber + ", bday=" + bday
                 + ", currentClass=" + currentClass + ", enrolledDate=" + enrolledDate + ", firstName=" + firstName
-                + ", lastName=" + lastName + "]";
+                + ", lastName=" + lastName + ", status=" + status + "]";
     }
 
-    
+  
 
-    
 
 }

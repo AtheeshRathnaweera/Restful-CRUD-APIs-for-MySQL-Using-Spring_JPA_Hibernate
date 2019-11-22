@@ -34,6 +34,9 @@ public class StudentForm {
     @NotNull
     private Integer currentClassId;
 
+    @NotBlank
+    private String status;
+
     public void setAdmissionNumber(Long admissionNumber){
         this.admissionNumber = admissionNumber;
     }
@@ -89,4 +92,12 @@ public class StudentForm {
 	public void setCurrentClassId(Integer currentClassId) {
 		this.currentClassId = currentClassId;
 	}
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

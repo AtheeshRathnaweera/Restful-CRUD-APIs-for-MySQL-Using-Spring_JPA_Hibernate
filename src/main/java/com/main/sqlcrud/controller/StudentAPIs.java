@@ -1,12 +1,16 @@
 package com.main.sqlcrud.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import com.main.sqlcrud.message.request.StudentForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
+import com.main.sqlcrud.model.User;
 import com.main.sqlcrud.repository.ClassRepository;
 import com.main.sqlcrud.repository.StudentRepository;
+import com.main.sqlcrud.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,6 +34,9 @@ public class StudentAPIs{
     @Autowired
     ClassRepository classRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @PostMapping("/add") //Operators only
     public Boolean addingUser(@Valid @RequestBody StudentForm studentRequest) {
 
@@ -45,7 +52,7 @@ public class StudentAPIs{
             //Create the student object
             Student student = new Student(studentRequest.getAdmissionNumber(), studentRequest.getFirstName(),
                     studentRequest.getLastName(), studentRequest.getBday(), studentRequest.getAddress(),
-                    studentRequest.getEnrolledDate(),temp);
+                    studentRequest.getEnrolledDate(),temp,studentRequest.getStatus());
     
             recResult = studentRepository.save(student);
     
@@ -74,6 +81,7 @@ public class StudentAPIs{
             temp.setBday(student.getBday());
             temp.setAddress(student.getAddress());
             temp.setEnrolledDate(student.getEnrolledDate());
+            temp.setStatus(student.getStatus());
 
             recStudent= studentRepository.save(temp);
 
@@ -85,18 +93,36 @@ public class StudentAPIs{
     }
 
 
-    @DeleteMapping("/delete/{admissionNumber}")
-    public Boolean deleteStudent(@PathVariable(value = "admissionNumber") Long admissionNumber) {
+    @DeleteMapping("/remove/{admissionNumber}")
+    public Boolean removeStudent(@PathVariable(value = "admissionNumber") Long admissionNumber) {
         Student temp = studentRepository.findByAdmissionNumber(admissionNumber);
-
+        
         if (temp != null) {
-            studentRepository.delete(temp);
+            userRepository.delete(new User(Long.toString(admissionNumber)));
+            temp.setStatus("blocked");
+            studentRepository.save(temp);
             return true;
         } else {
+            //student not exist
             return false;
         }
 
     }
+
+    @PutMapping("/reassign/{admissionNum}")
+    public Student reassignTeacher(@PathVariable(value="admissionNum") String admissionNum){
+        Student existStudent = studentRepository.findByAdmissionNumber(Long.parseLong(admissionNum));
+        Student updatedStudent = null;
+
+        if(!existStudent.equals(null)){
+            existStudent.setStatus("active");
+            updatedStudent = studentRepository.save(existStudent);
+        }
+
+        return updatedStudent;
+    }
+
+
 
     @GetMapping("/get/{admissionNum}") // get student by admission number
     public Student getStudentByAdmissionNum(@PathVariable(value = "admissionNum") String admissionNumber) {
@@ -105,6 +131,32 @@ public class StudentAPIs{
         return studentRepository.findByAdmissionNumber(number);
 
     }
+
+    //GET ALL STUDENTS COUNT
+    @GetMapping("/getallcount")
+    public Long getAllStudentsCount() {
+
+        return studentRepository.count();
+
+    }
+
+    //GET ALL STUDENTS
+    @GetMapping("/getall")
+    public List<Student> getAllStudents() {
+
+        return studentRepository.findAll();
+
+    }
+
+    @GetMapping("/getallstudentbyclass/{id}")
+    public List<Student> getAllStudentsByClass(@PathVariable(value="id") String id) {
+
+        return studentRepository.findByCurrentClass(new SClass(Integer.parseInt(id)));
+
+    }
+
+
+
 
 
 }
