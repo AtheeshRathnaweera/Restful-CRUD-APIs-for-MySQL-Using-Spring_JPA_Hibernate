@@ -1,16 +1,20 @@
 package com.main.sqlcrud.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import com.main.sqlcrud.message.request.NewClassForm;
 import com.main.sqlcrud.message.request.TeacherForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
+import com.main.sqlcrud.model.TeacherHistory;
 import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.model.User;
 import com.main.sqlcrud.repository.ClassRepository;
+import com.main.sqlcrud.repository.TeacherHistoryRepository;
 import com.main.sqlcrud.repository.TeacherRepository;
 import com.main.sqlcrud.repository.UserRepository;
 
@@ -39,20 +43,28 @@ public class TeacherAPIs {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    TeacherHistoryRepository teacherHistoryRepository;
+
     @PostMapping("/add") // Operators only
     public Teachers addingTeacher(@Valid @RequestBody TeacherForm newTeacher) {
 
         Teachers tempTeacher = new Teachers();
+        int year = Calendar.getInstance().get(Calendar.YEAR);
 
         if (!teacherRepository.existsById(newTeacher.getNIC())) {
 
             int currentClassId = newTeacher.getCurrentClassId();
+            TeacherHistory teacherHistory = teacherHistoryRepository.findByNic(newTeacher.getNIC());
 
             // Get the Class details
             SClass tempClass = null;
 
             if (currentClassId > 0) {
                 tempClass = classRepository.findClassById(currentClassId);
+            }else{
+                List<SClass> ttclass = classRepository.findByGrade(0);
+                tempClass = ttclass.get(0);
             }
 
             Teachers tempT = new Teachers(newTeacher.getNIC(), newTeacher.getFirstName(), newTeacher.getLastName(),
@@ -60,6 +72,15 @@ public class TeacherAPIs {
                     newTeacher.getGender(), tempClass);
 
             tempTeacher = teacherRepository.save(tempT);
+
+            if(teacherHistory == null){
+                teacherHistoryRepository.save(new TeacherHistory(newTeacher.getNIC(), year, tempClass));
+
+            }else{
+                if(year != teacherHistory.getYear()){
+                    teacherHistoryRepository.save(new TeacherHistory(newTeacher.getNIC(), year, tempClass));
+                }
+            }
 
             return tempTeacher;
 
@@ -78,6 +99,9 @@ public class TeacherAPIs {
         SClass tempClass = null;
 
         if (temp != null) {
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            TeacherHistory teacherHistory = teacherHistoryRepository.findByNic(teacherForm.getNIC());
+
             temp.setFirstName(teacherForm.getFirstName());
             temp.setLastName(teacherForm.getLastName());
             temp.setAddress(teacherForm.getAddress());
@@ -87,11 +111,23 @@ public class TeacherAPIs {
 
             if (teacherForm.getCurrentClassId() > 0) {
                 tempClass = classRepository.findClassById(teacherForm.getCurrentClassId());
+            }else{
+                List<SClass> classl = classRepository.findByGrade(0);
+                tempClass = classl.get(0);
             }
 
             temp.setCurrentClass(tempClass);
 
             updateTeacher = teacherRepository.save(temp);
+
+            if(teacherHistory == null){
+                teacherHistoryRepository.save(new TeacherHistory(updateTeacher.getNic(), year, tempClass));
+
+            }else{
+                if(year != teacherHistory.getYear()){
+                    teacherHistoryRepository.save(new TeacherHistory(updateTeacher.getNic(), year, tempClass));
+                }
+            }
 
             return updateTeacher;
 
@@ -176,6 +212,8 @@ public class TeacherAPIs {
         return teacherRepository.findByCurrentClass(new SClass(Integer.parseInt(classid)));
 
     }
+
+    //ASSIGN A Class
 
     
 

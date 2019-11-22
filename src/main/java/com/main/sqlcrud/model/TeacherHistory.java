@@ -9,6 +9,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -19,11 +20,11 @@ public class TeacherHistory{
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    @NotNull
-    private Long nic;
+    @NotBlank
+    private String nic;
 
     @NotNull
-    private Long year;
+    private int year;
 
     
     @NotNull
@@ -36,7 +37,13 @@ public class TeacherHistory{
     public TeacherHistory() {
     }
 
-    public TeacherHistory(Integer id, @NotNull Long nic, @NotNull Long year, @NotNull SClass classId) {
+    public TeacherHistory(@NotBlank String nic, @NotNull int year, @NotNull SClass classId) {
+        this.nic = nic;
+        this.year = year;
+        this.classId = classId;
+    }
+    
+    public TeacherHistory(Integer id, @NotBlank String nic, @NotNull int year, @NotNull SClass classId) {
         this.id = id;
         this.nic = nic;
         this.year = year;
@@ -51,19 +58,19 @@ public class TeacherHistory{
         this.id = id;
     }
 
-    public Long getNic() {
+    public String getNic() {
         return nic;
     }
 
-    public void setNic(Long nic) {
+    public void setNic(String nic) {
         this.nic = nic;
     }
 
-    public Long getYear() {
+    public int getYear() {
         return year;
     }
 
-    public void setYear(Long year) {
+    public void setYear(int year) {
         this.year = year;
     }
 
@@ -81,6 +88,8 @@ public class TeacherHistory{
     public String toString() {
         return "TeacherHistory [classId=" + classId + ", id=" + id + ", nic=" + nic + ", year=" + year + "]";
     }
+
+    
 
     
 
