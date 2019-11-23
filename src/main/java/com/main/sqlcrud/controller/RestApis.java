@@ -8,7 +8,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.validation.Valid;
 
-
+import com.main.sqlcrud.model.Student;
 import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.model.User;
 import com.main.sqlcrud.repository.ClassRepository;
@@ -29,6 +29,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -112,18 +114,50 @@ public class RestApis {
         return response;
 
     }
+
+    @PostMapping("/signin/operator")
+    public User signinOperator(@Valid @RequestBody User userRequest) {
+
+        User response = new User();
+
+        if (!userRequest.getUserRole().equals(null) && operatorRepository.existsByNic(userRequest.getUserId()) && !userRepository.existsById(userRequest.getUserId())) { // Student use
+                                                                                                  
+                User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
+                response = userRepository.save(newUser);
+        } 
+
+        return response;
+
+    }
     
-    //Get students count
+    //Get student users count
     @GetMapping("/users/studentUsersCount")
-    public ArrayList<?> gettingStudentUsersCount() {
-        return userRepository.getStudentUsersCount();
+    public Long gettingStudentUsersCount() {
+        List<Long> c = userRepository.getStudentUsersCount();
+        return c.get(0);
     }
 
-    //Get teachers count
+    //Get teacher users count
     @GetMapping("/users/teacherUsersCount")
-    public ArrayList<Long> gettingTeacherUsersCount() {
-        return userRepository.getTeacherUsersCount();
+    public Long gettingTeacherUsersCount() {
+        List<Long> c = userRepository.getTeacherUsersCount();
+        return c.get(0);
     }
+
+
+    @GetMapping("/users/students")
+    public List<User> getStudentUsers() {
+        return userRepository.findByUserRole("student");
+    }
+
+    @GetMapping("/users/teachers")
+    public List<User> getTeacherUsers() {
+        return userRepository.findByUserRole("teacher");
+    }
+    
+
+    
+    
 
  
 

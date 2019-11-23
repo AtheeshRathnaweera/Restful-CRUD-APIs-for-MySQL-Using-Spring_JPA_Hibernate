@@ -1,6 +1,7 @@
 package com.main.sqlcrud.repository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -16,11 +17,12 @@ public interface UserRepository extends JpaRepository<User, String>{
 
      
      User findByUserId(String userId);
+     List<User> findByUserRole(String role);
      
      Boolean existsByUserId(String userId);
  
      @Query("SELECT COUNT(u) FROM User u Where u.userRole= 'student'")
-     ArrayList<?> getStudentUsersCount();
+     ArrayList<Long> getStudentUsersCount();
 
      @Query("SELECT COUNT(u) FROM User u Where u.userRole= 'teacher'")
      ArrayList<Long> getTeacherUsersCount();

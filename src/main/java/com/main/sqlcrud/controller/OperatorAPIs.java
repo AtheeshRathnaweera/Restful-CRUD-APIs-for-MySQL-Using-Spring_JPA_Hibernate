@@ -1,5 +1,7 @@
 package com.main.sqlcrud.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import com.main.sqlcrud.message.request.OperatorForm;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -113,6 +117,12 @@ public class OperatorAPIs{
     public Long getOperatorsCount() {
         return operatorRepository.count();
     }
+
+    @GetMapping("/getall")
+    public List<Operator> getAllOperators() {
+        return operatorRepository.findAll();
+    }
+    
 
     
 
