@@ -6,8 +6,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.main.sqlcrud.message.request.NewClassForm;
-import com.main.sqlcrud.message.request.StudentForm;
-import com.main.sqlcrud.message.request.TeacherForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
 import com.main.sqlcrud.model.Teachers;

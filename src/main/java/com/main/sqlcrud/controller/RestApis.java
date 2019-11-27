@@ -31,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/studentMg")
@@ -64,12 +62,13 @@ public class RestApis {
 
         System.out.println("Found user : " + temp.toString());
 
+
         if (temp != null) {
             if (temp.getPassword().equals(userLogRequest.getPassword())) {
                 System.out.println("Password matched");
                 response.setUserId(temp.getUserId());
                 response.setUserRole(temp.getUserRole());
-            }else{
+            } else {
                 System.out.println("Password mismatched.");
             }
 
@@ -86,11 +85,13 @@ public class RestApis {
 
         User response = new User();
 
-        if (!userRequest.getUserRole().equals(null) && studentRepository.existsByAdmissionNumber(Long.parseLong(userRequest.getUserId())) && !userRepository.existsById(userRequest.getUserId())) { // Student use
-                                                                                                  
-                User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
-                response = userRepository.save(newUser);
-        } 
+        if (userRequest.getUserRole().equals("student")
+                && studentRepository.existsByAdmissionNumber(Long.parseLong(userRequest.getUserId()))
+                && !userRepository.existsById(userRequest.getUserId())) { // Student use
+
+            User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
+            response = userRepository.save(newUser);
+        }
 
         return response;
 
@@ -102,15 +103,15 @@ public class RestApis {
         User response = new User();
         Teachers teacher = teacherRepository.findByNic(userRequest.getUserId());
 
-        if(!teacher.getStatus().equals("removed") && !userRequest.getUserRole().equals(null)){
+        if (!teacher.getStatus().equals("removed") && !userRequest.getUserRole().equals(null)) {
 
-            if(!teacher.equals(null) && !userRepository.existsById(userRequest.getUserId())){
+            if (!teacher.equals(null) && !userRepository.existsById(userRequest.getUserId())) {
                 User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
                 response = userRepository.save(newUser);
             }
 
         }
-       
+
         return response;
 
     }
@@ -120,30 +121,30 @@ public class RestApis {
 
         User response = new User();
 
-        if (!userRequest.getUserRole().equals(null) && operatorRepository.existsByNic(userRequest.getUserId()) && !userRepository.existsById(userRequest.getUserId())) { // Student use
-                                                                                                  
-                User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
-                response = userRepository.save(newUser);
-        } 
+        if (!userRequest.getUserRole().equals(null) && operatorRepository.existsByNic(userRequest.getUserId())
+                && !userRepository.existsById(userRequest.getUserId())) { // Student use
+
+            User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
+            response = userRepository.save(newUser);
+        }
 
         return response;
 
     }
-    
-    //Get student users count
+
+    // Get student users count
     @GetMapping("/users/studentUsersCount")
     public Long gettingStudentUsersCount() {
         List<Long> c = userRepository.getStudentUsersCount();
         return c.get(0);
     }
 
-    //Get teacher users count
+    // Get teacher users count
     @GetMapping("/users/teacherUsersCount")
     public Long gettingTeacherUsersCount() {
         List<Long> c = userRepository.getTeacherUsersCount();
         return c.get(0);
     }
-
 
     @GetMapping("/users/students")
     public List<User> getStudentUsers() {
@@ -154,16 +155,5 @@ public class RestApis {
     public List<User> getTeacherUsers() {
         return userRepository.findByUserRole("teacher");
     }
-    
-
-    
-    
-
- 
-
-    
-
-
-
 
 }

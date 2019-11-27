@@ -22,11 +22,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/studentMg/operator")
-public class OperatorAPIs{
+public class OperatorAPIs {
 
     @Autowired
     OperatorRepository operatorRepository;
@@ -36,11 +35,12 @@ public class OperatorAPIs{
 
     @PostMapping("/signin")
     public User signinOperator(@Valid @RequestBody User userRequest) {
-        System.out.println("signin operator started. "+userRequest.getUserRole().equals(null));
+        System.out.println("signin operator started. " + userRequest.getUserRole().equals(null));
 
         User recUser = new User();
 
-        if(!userRequest.getUserRole().equals(null) && !userRepository.existsByUserId(userRequest.getUserId()) && operatorRepository.existsByNic(userRequest.getUserId())){
+        if (!userRequest.getUserRole().equals(null) && !userRepository.existsByUserId(userRequest.getUserId())
+                && operatorRepository.existsByNic(userRequest.getUserId())) {
             User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
             recUser = userRepository.save(newUser);
         }
@@ -48,12 +48,12 @@ public class OperatorAPIs{
 
     }
 
-    @PostMapping("/add") //admin only
+    @PostMapping("/add") // admin only
     public Operator addNewOperator(@Valid @RequestBody OperatorForm newOperatorRequest) {
 
         Operator tempOperator = new Operator();
 
-        if(!operatorRepository.existsByNic(newOperatorRequest.getNic())){
+        if (!operatorRepository.existsByNic(newOperatorRequest.getNic())) {
             tempOperator.setNic(newOperatorRequest.getNic());
             tempOperator.setFirstName(newOperatorRequest.getFirstName());
             tempOperator.setLastName(newOperatorRequest.getLastName());
@@ -62,57 +62,65 @@ public class OperatorAPIs{
             tempOperator.setEnrolledDate(newOperatorRequest.getEnrolledDate());
             tempOperator.setStatus(newOperatorRequest.getStatus());
 
-            Operator recOp =  operatorRepository.save(tempOperator);
+            Operator recOp = operatorRepository.save(tempOperator);
 
-            System.out.println("saved operator : "+recOp);
+            System.out.println("saved operator : " + recOp);
             return recOp;
 
-
-        }else{
+        } else {
             return tempOperator;
-
 
         }
 
     }
 
-    @PutMapping("/pwResetOperator") //pw reset by only for admin
+    @PutMapping("/pwResetOperator") // pw reset by only for admin
     public Boolean pwResetOperator(@Valid @RequestBody User userForm) {
-        if(userRepository.existsById(userForm.getUserId())){
-            User tempUser = new User(userForm.getUserId(),userForm.getPassword(),userForm.getUserRole());
+        if (userRepository.existsById(userForm.getUserId())) {
+            User tempUser = new User(userForm.getUserId(), userForm.getPassword(), userForm.getUserRole());
             userRepository.save(tempUser);
 
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-
-    @DeleteMapping("/remove/{nic}/{status}") //only for admin
-    public Boolean removeOperator(@PathVariable(value = "nic") String nic, @PathVariable(value="status") String status) {
+    @DeleteMapping("/remove/{nic}/{status}") // only for admin
+    public Boolean removeOperator(@PathVariable(value = "nic") String nic,
+            @PathVariable(value = "status") String status) {
 
         User tempUser = userRepository.findByUserId(nic);
         Operator tempOp = operatorRepository.findByNic(nic);
-        
-        if (tempOp != null) {
-            userRepository.delete(tempUser);
+        Boolean finalResult = false;
+
+        if (tempUser != null) {
+            if (tempOp != null) {
+
+                userRepository.delete(tempUser);
+                tempOp.setStatus(status);
+
+                Operator temp = operatorRepository.save(tempOp);
+
+                if (!temp.equals(null)) {
+                    finalResult = true;
+                }
+            }
+        } else {
             tempOp.setStatus(status);
 
             Operator temp = operatorRepository.save(tempOp);
 
-            if(!temp.equals(null)){
-                return true;
-            }else{
-                return false;
+            if (!temp.equals(null)) {
+                finalResult = true;
             }
-        } else {
-            return false;
+
         }
+        return finalResult;
 
     }
 
-    //Get operators count
+    // Get operators count
     @GetMapping("/getallcount")
     public Long getOperatorsCount() {
         return operatorRepository.count();
@@ -122,9 +130,5 @@ public class OperatorAPIs{
     public List<Operator> getAllOperators() {
         return operatorRepository.findAll();
     }
-    
-
-    
-
 
 }
