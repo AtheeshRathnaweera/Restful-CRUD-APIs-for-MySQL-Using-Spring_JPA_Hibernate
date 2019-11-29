@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.persistence.Entity;
 import javax.validation.Valid;
 
+import com.main.sqlcrud.model.Operator;
 import com.main.sqlcrud.model.Student;
 import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.model.User;
@@ -23,13 +24,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -55,23 +54,18 @@ public class RestApis {
     @PostMapping("/login")
     public User logginUser(@Valid @RequestBody User userLogRequest) {
 
-        System.out.println("Rec user details : (login) " + userLogRequest.toString());
-
         User temp = userRepository.findByUserId(userLogRequest.getUserId());
         User response = new User();
-
-        System.out.println("Found user : " + temp.toString());
-
 
         if (temp != null) {
             if (temp.getPassword().equals(userLogRequest.getPassword())) {
                 System.out.println("Password matched");
                 response.setUserId(temp.getUserId());
                 response.setUserRole(temp.getUserRole());
+                response.setPassword(temp.getPassword());
             } else {
                 System.out.println("Password mismatched.");
             }
-
         }
 
         return response;
@@ -121,11 +115,20 @@ public class RestApis {
 
         User response = new User();
 
-        if (!userRequest.getUserRole().equals(null) && operatorRepository.existsByNic(userRequest.getUserId())
-                && !userRepository.existsById(userRequest.getUserId())) { // Student use
+        System.out.println("received data : "+userRequest.toString());
 
-            User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
-            response = userRepository.save(newUser);
+        if (userRequest.getUserRole().equals("operator") && operatorRepository.existsByNic(userRequest.getUserId())
+                && !userRepository.existsById(userRequest.getUserId())) {
+
+            System.out.println("operator found !");
+
+            Operator tempOper = operatorRepository.findByNic(userRequest.getUserId());
+
+            if (tempOper.getStatus().equals("active")) {
+                System.out.println("active user found !");
+                User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
+                response = userRepository.save(newUser);
+            }
         }
 
         return response;
@@ -154,6 +157,18 @@ public class RestApis {
     @GetMapping("/users/teachers")
     public List<User> getTeacherUsers() {
         return userRepository.findByUserRole("teacher");
+    }
+
+    @PutMapping("/pwResetAdmin") // pw reset by only for admin
+    public Boolean pwResetAdmin(@Valid @RequestBody User userForm) {
+        if (userRepository.existsById(userForm.getUserId())) {
+            User tempUser = new User(userForm.getUserId(), userForm.getPassword(), userForm.getUserRole());
+            userRepository.save(tempUser);
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -41,6 +40,7 @@ public class OperatorAPIs {
 
         if (!userRequest.getUserRole().equals(null) && !userRepository.existsByUserId(userRequest.getUserId())
                 && operatorRepository.existsByNic(userRequest.getUserId())) {
+                    
             User newUser = new User(userRequest.getUserId(), userRequest.getPassword(), userRequest.getUserRole());
             recUser = userRepository.save(newUser);
         }

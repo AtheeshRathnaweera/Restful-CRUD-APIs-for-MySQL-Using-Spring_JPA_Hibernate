@@ -16,6 +16,9 @@ public interface ClassRepository extends JpaRepository<SClass, Integer> {
 	SClass findClassById(int id);
 	List<SClass> findByGrade(Integer grade);
 
+	@Query("SELECT count(*) FROM SClass c Where c.grade= ?#{[0]}")
+	Long getClassAmountOfAGrade(int grade);
+
 	@Query("SELECT c.id FROM SClass c Where c.grade= ?#{[0]} AND c.name= ?#{[1]}")
 	ArrayList<?> getClassIdByGradeAndName(int grade, String name);
 }

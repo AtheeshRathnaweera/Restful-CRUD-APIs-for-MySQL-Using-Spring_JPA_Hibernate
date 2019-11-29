@@ -20,7 +20,10 @@ public interface StudentRepository extends JpaRepository<Student, Long>{
     List<Student> findByCurrentClass(SClass currentClass);
 
     @Query("SELECT s FROM Student s Where s.currentClass.id= ?#{[0]}")
-	ArrayList<Student> getStudentsInAClass(int classId);
+    ArrayList<Student> getStudentsInAClass(int classId);
+    
+    @Query("SELECT COUNT(*) FROM Student s Where s.currentClass.id= ?#{[0]}")
+	Long getStudentsCountInAClass(int classId);
 
     
     

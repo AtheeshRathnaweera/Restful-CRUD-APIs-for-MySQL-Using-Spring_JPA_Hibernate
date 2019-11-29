@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,12 +57,27 @@ public class ClassAPIs {
 
     }
 
+    //get all classes
+    @GetMapping("/allCount")
+    public Long getAllClasses(){
+        return classRepository.count();
+
+    }
+
     // Get all classes of a grade
     @GetMapping("/getClasses/{grade}")
     public List<SClass> gettingClasses(@PathVariable(value = "grade") int grade) {
         List<SClass> result = classRepository.findByGrade(grade);
         System.out.println("result : " + result.size());
         return result;
+    }
+
+    //Get all classes amount of a grade
+    @GetMapping("/getClassAmount/{grade}")
+    public Long gettingClassAmountInGrade(@PathVariable(value = "grade") int grade){
+        Long result = classRepository.getClassAmountOfAGrade(grade);
+        return result;
+
     }
 
     // Get students of a class
@@ -73,6 +87,17 @@ public class ClassAPIs {
         System.out.println("result size : " + result.size());
         return result;
     }
+
+    // Get students count of a class
+    @GetMapping("/getStudentsCount/{classId}")
+    public Long gettingStudentsCount(@PathVariable(value = "classId") int classId) {
+        return studentRepository.getStudentsCountInAClass(classId);
+       
+    }
+
+
+
+
 
     // Get class teacher
     @GetMapping("/getTeacher/{classId}")
