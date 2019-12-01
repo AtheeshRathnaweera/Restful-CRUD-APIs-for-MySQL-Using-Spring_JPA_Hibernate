@@ -15,7 +15,6 @@ import com.main.sqlcrud.repository.TeacherRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +37,7 @@ public class ClassAPIs {
     StudentRepository studentRepository;
 
     @PostMapping("/add") // Operators only
-    public boolean addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
+    public SClass addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
 
         SClass tempClass = new SClass(newClassRequest.getGrade(), newClassRequest.getName());
 
@@ -47,12 +46,12 @@ public class ClassAPIs {
 
         if (result.isEmpty()) {
             System.out.println("class not exists");
-            classRepository.save(tempClass);
-            return true;
+            SClass savedClass = classRepository.save(tempClass);
+            return savedClass;
 
         } else {
             System.out.println("class exists.");
-            return false;
+            return null;
         }
 
     }
