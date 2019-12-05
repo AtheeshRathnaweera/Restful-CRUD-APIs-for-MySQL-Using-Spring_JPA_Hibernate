@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.main.sqlcrud.message.request.AssignTeacherToClassForm;
+import com.main.sqlcrud.message.request.AssignToClassForm;
 import com.main.sqlcrud.message.request.NewClassForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,11 +59,18 @@ public class ClassAPIs {
 
     }
 
-    //get all classes
+    // get all classes
     @GetMapping("/allCount")
-    public Long getAllClasses(){
+    public Long getAllClasses() {
         return classRepository.count();
 
+    }
+
+    // Get class data by id
+    @GetMapping("/getInfo/{classId}")
+    public SClass gettingClassesInfo(@PathVariable(value = "classId") int classId) {
+        SClass result = classRepository.findClassById(classId);
+        return result;
     }
 
     // Get all classes of a grade
@@ -71,9 +81,9 @@ public class ClassAPIs {
         return result;
     }
 
-    //Get all classes amount of a grade
+    // Get all classes amount of a grade
     @GetMapping("/getClassAmount/{grade}")
-    public Long gettingClassAmountInGrade(@PathVariable(value = "grade") int grade){
+    public Long gettingClassAmountInGrade(@PathVariable(value = "grade") int grade) {
         Long result = classRepository.getClassAmountOfAGrade(grade);
         return result;
 
@@ -91,18 +101,60 @@ public class ClassAPIs {
     @GetMapping("/getStudentsCount/{classId}")
     public Long gettingStudentsCount(@PathVariable(value = "classId") int classId) {
         return studentRepository.getStudentsCountInAClass(classId);
-       
+
     }
-
-
-
-
 
     // Get class teacher
     @GetMapping("/getTeacher/{classId}")
     public List<Teachers> getClassTeacher(@PathVariable(value = "classId") int classId) {
         List<Teachers> result = teacherRepository.getTeacherByClass(classId);
         return result;
+    }
+
+    @PutMapping("/assignStudents")
+    public List<Student> assignStudentsToTheClass(@Valid @RequestBody AssignToClassForm assignData) {
+        List<Student> updatedStudentsList = new ArrayList<>();
+
+        for (int i = 0; i < assignData.getStudentsAds().length; i++) {
+            String studentAdId = assignData.getStudentsAds()[i];
+            System.out.println("student : " + assignData.getStudentsAds()[i]);
+            Student existStudent = studentRepository.findByAdmissionNumber(Long.parseLong(studentAdId));
+            Student updatedStudent = null;
+
+            SClass tempClass = classRepository.findClassById(Integer.parseInt(assignData.getClassId()));
+
+            if (!existStudent.equals(null) && !tempClass.equals(null)) {
+                existStudent.setStatus("active");
+                existStudent.setCurrentClass(tempClass);
+                updatedStudent = studentRepository.save(existStudent);
+                updatedStudentsList.add(updatedStudent);
+            }
+
+        }
+
+        return updatedStudentsList;
+    }
+
+    @PutMapping("/assignTeacher")
+    public Teachers assignTeacherToTheClass(@Valid @RequestBody AssignTeacherToClassForm assignData) {
+        Teachers updatedTeacher = null;
+
+        SClass existClass = classRepository.findClassById(Integer.parseInt(assignData.getClassId()));
+       
+        Teachers newTeacher = teacherRepository.findByNic(assignData.getNewTeacherNic());
+
+        if(!existClass.equals(null) && !newTeacher.equals(null)){
+            newTeacher.setCurrentClass(existClass);  
+            if(!assignData.getOldTeacherNic().equals(null)){
+                Teachers oldTeacher = teacherRepository.findByNic(assignData.getOldTeacherNic());
+                oldTeacher.setCurrentClass(new SClass(1));
+                teacherRepository.save(oldTeacher);
+            }
+                  
+            updatedTeacher = teacherRepository.save(newTeacher);
+        }
+
+        return updatedTeacher;
     }
 
 }

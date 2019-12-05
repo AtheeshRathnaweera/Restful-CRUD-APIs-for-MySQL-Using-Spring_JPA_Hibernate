@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.main.sqlcrud.message.request.AssignToClassForm;
 import com.main.sqlcrud.message.request.StudentForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
@@ -137,7 +138,7 @@ public class StudentAPIs {
     }
 
     @PutMapping("/reassign/{admissionNum}")
-    public Student reassignTeacher(@PathVariable(value = "admissionNum") String admissionNum) {
+    public Student reassignStudent(@PathVariable(value = "admissionNum") String admissionNum) {
         Student existStudent = studentRepository.findByAdmissionNumber(Long.parseLong(admissionNum));
         Student updatedStudent = null;
 
@@ -169,7 +170,7 @@ public class StudentAPIs {
     @GetMapping("/getall")
     public List<Student> getAllStudents() {
 
-        return studentRepository.findAll();
+        return studentRepository.findAllActiveStudents();
 
     }
 
@@ -187,5 +188,7 @@ public class StudentAPIs {
         return studentRepository.findByStatus(status);
 
     }
+
+
 
 }
