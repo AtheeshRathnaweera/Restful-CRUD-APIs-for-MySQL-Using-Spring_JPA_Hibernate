@@ -42,7 +42,7 @@ public class Teachers {
     private String status;
 
     @NotBlank
-    private String gender;
+    private String gender;//active,past,unenrolled
 
    
     @OneToOne(fetch = FetchType.LAZY)

@@ -1,6 +1,7 @@
 package com.main.sqlcrud.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -10,8 +11,10 @@ import com.main.sqlcrud.message.request.AssignToClassForm;
 import com.main.sqlcrud.message.request.NewClassForm;
 import com.main.sqlcrud.model.SClass;
 import com.main.sqlcrud.model.Student;
+import com.main.sqlcrud.model.StudentHistory;
 import com.main.sqlcrud.model.Teachers;
 import com.main.sqlcrud.repository.ClassRepository;
+import com.main.sqlcrud.repository.StudentHistoryRepository;
 import com.main.sqlcrud.repository.StudentRepository;
 import com.main.sqlcrud.repository.TeacherRepository;
 
@@ -39,6 +42,9 @@ public class ClassAPIs {
     @Autowired
     StudentRepository studentRepository;
 
+    @Autowired
+    StudentHistoryRepository studentHistoryRepository;
+
     @PostMapping("/add") // Operators only
     public SClass addingClass(@Valid @RequestBody NewClassForm newClassRequest) {
 
@@ -59,11 +65,17 @@ public class ClassAPIs {
 
     }
 
-    // get all classes
+    // get all classes count
     @GetMapping("/allCount")
-    public Long getAllClasses() {
+    public Long getAllClassesCount() {
         return classRepository.count();
 
+    }
+
+    //get all classes
+    @GetMapping("/getAll")
+    public List<SClass> getAllClasses(){
+        return classRepository.findAll();
     }
 
     // Get class data by id
@@ -114,20 +126,32 @@ public class ClassAPIs {
     @PutMapping("/assignStudents")
     public List<Student> assignStudentsToTheClass(@Valid @RequestBody AssignToClassForm assignData) {
         List<Student> updatedStudentsList = new ArrayList<>();
+        int year = Calendar.getInstance().get(Calendar.YEAR); // get current year
 
         for (int i = 0; i < assignData.getStudentsAds().length; i++) {
             String studentAdId = assignData.getStudentsAds()[i];
-            System.out.println("student : " + assignData.getStudentsAds()[i]);
+
             Student existStudent = studentRepository.findByAdmissionNumber(Long.parseLong(studentAdId));
+            StudentHistory studentHistoryYear = studentHistoryRepository.getHistoryByYearAndAdmissionNum(year,
+                    Long.parseLong(studentAdId));
+
             Student updatedStudent = null;
 
             SClass tempClass = classRepository.findClassById(Integer.parseInt(assignData.getClassId()));
 
             if (!existStudent.equals(null) && !tempClass.equals(null)) {
+
                 existStudent.setStatus("active");
                 existStudent.setCurrentClass(tempClass);
                 updatedStudent = studentRepository.save(existStudent);
                 updatedStudentsList.add(updatedStudent);
+
+                if (studentHistoryYear == null) {
+                    studentHistoryRepository.save(new StudentHistory(Long.parseLong(studentAdId), Integer.parseInt(assignData.getClassId()), tempClass));
+                } else {
+                    studentHistoryYear.setClassId(tempClass);
+                    studentHistoryRepository.save(studentHistoryYear);
+                }
             }
 
         }
@@ -137,24 +161,45 @@ public class ClassAPIs {
 
     @PutMapping("/assignTeacher")
     public Teachers assignTeacherToTheClass(@Valid @RequestBody AssignTeacherToClassForm assignData) {
+        System.out.println("rec data : " + assignData.toString());
         Teachers updatedTeacher = null;
 
         SClass existClass = classRepository.findClassById(Integer.parseInt(assignData.getClassId()));
-       
+
         Teachers newTeacher = teacherRepository.findByNic(assignData.getNewTeacherNic());
 
-        if(!existClass.equals(null) && !newTeacher.equals(null)){
-            newTeacher.setCurrentClass(existClass);  
-            if(!assignData.getOldTeacherNic().equals(null)){
+        if (!existClass.equals(null) && !newTeacher.equals(null)) {
+            newTeacher.setCurrentClass(existClass);
+            if (!assignData.getOldTeacherNic().equals("not found")) {
                 Teachers oldTeacher = teacherRepository.findByNic(assignData.getOldTeacherNic());
                 oldTeacher.setCurrentClass(new SClass(1));
                 teacherRepository.save(oldTeacher);
             }
-                  
+
             updatedTeacher = teacherRepository.save(newTeacher);
         }
 
         return updatedTeacher;
+    }
+
+    @PutMapping("/removeStudents")
+    public List<Student> removeStudentsFromTheClass(@Valid @RequestBody AssignToClassForm assignData) {
+        List<Student> updatedStudentsList = new ArrayList<>();
+
+        for (int i = 0; i < assignData.getStudentsAds().length; i++) {
+            String studentAdId = assignData.getStudentsAds()[i];
+            Student existStudent = studentRepository.findByAdmissionNumber(Long.parseLong(studentAdId));
+            Student updatedStudent = null;
+
+            if (!existStudent.equals(null)) {
+                existStudent.setCurrentClass(new SClass(1));
+                updatedStudent = studentRepository.save(existStudent);
+                updatedStudentsList.add(updatedStudent);
+            }
+
+        }
+
+        return updatedStudentsList;
     }
 
 }

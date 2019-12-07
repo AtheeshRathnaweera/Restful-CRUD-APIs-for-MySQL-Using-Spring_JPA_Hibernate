@@ -189,6 +189,12 @@ public class StudentAPIs {
 
     }
 
+    //get student class history by year
+    @GetMapping("/getClassHistory/{admissionNum}/{year}")
+    public StudentHistory getStudentClassHistoryByYear(@PathVariable(value = "admissionNum") Long admissionNum,@PathVariable(value = "year") String year){
+        return studentHistoryRepository.getHistoryByYearAndAdmissionNum(Integer.parseInt(year), admissionNum);   
+    }
+
 
 
 }
