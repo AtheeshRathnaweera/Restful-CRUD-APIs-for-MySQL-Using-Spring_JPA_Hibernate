@@ -13,7 +13,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StudentHistoryRepository extends JpaRepository<StudentHistory, Long>{
 
-    StudentHistory findByAdmissionNumber(Long admissionNumber);
+    List<StudentHistory> findByAdmissionNumber(Long admissionNumber);
+
+    @Query("SELECT c FROM StudentHistory c Where c.id= ?#{[0]}")
+    StudentHistory getStudentById(int id);
 
     @Query("SELECT c FROM StudentHistory c Where c.year= ?#{[0]} AND c.admissionNumber= ?#{[1]}")
 	StudentHistory getHistoryByYearAndAdmissionNum(int year, Long adm);

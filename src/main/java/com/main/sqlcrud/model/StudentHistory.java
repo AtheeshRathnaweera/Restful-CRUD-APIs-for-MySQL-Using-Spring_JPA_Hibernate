@@ -14,11 +14,11 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name="student_history")
-public class StudentHistory{
+@Table(name = "student_history")
+public class StudentHistory {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @NotNull
@@ -26,14 +26,20 @@ public class StudentHistory{
 
     @NotNull
     private int year;
-   
+
     @NotNull
-    @OneToOne(fetch = FetchType.LAZY) 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    @JoinTable(name = "student_class_history", 
-    	joinColumns = @JoinColumn(name = "history_id", referencedColumnName="id"), 
-    	inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName="id"))
+    @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    @JoinTable(name = "student_class_history", joinColumns = @JoinColumn(name = "history_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "class_id", referencedColumnName = "id"))
     private SClass classId;
+
+    private String subjects;
+
+    private String firstTermResults;
+
+    private String secondTermResults;
+
+    private String thirdTermResults;
 
     public StudentHistory() {
     }
@@ -43,12 +49,17 @@ public class StudentHistory{
         this.year = year;
         this.classId = classId;
     }
-    
-    public StudentHistory(Integer id, @NotNull Long admissionNumber, @NotNull int year, @NotNull SClass classId) {
+
+    public StudentHistory(Integer id, @NotNull Long admissionNumber, @NotNull int year, @NotNull SClass classId,
+            String subjects, String firstTermResults, String secondTermResults, String thirdTermResults) {
         this.id = id;
         this.admissionNumber = admissionNumber;
         this.year = year;
         this.classId = classId;
+        this.subjects = subjects;
+        this.firstTermResults = firstTermResults;
+        this.secondTermResults = secondTermResults;
+        this.thirdTermResults = thirdTermResults;
     }
 
     public Integer getId() {
@@ -83,15 +94,45 @@ public class StudentHistory{
         this.classId = classId;
     }
 
-    @Override
-    public String toString() {
-        return "StudentHistory [admissionNumber=" + admissionNumber + ", classId=" + classId + ", id=" + id + ", year="
-                + year + "]";
+    public String getSubjects() {
+        return subjects;
     }
 
-   
+    public void setSubjects(String subjects) {
+        this.subjects = subjects;
+    }
 
-    
-    
+    public String getFirstTermResults() {
+        return firstTermResults;
+    }
+
+    public void setFirstTermResults(String firstTermResults) {
+        this.firstTermResults = firstTermResults;
+    }
+
+    public String getSecondTermResults() {
+        return secondTermResults;
+    }
+
+    public void setSecondTermResults(String secondTermResults) {
+        this.secondTermResults = secondTermResults;
+    }
+
+    public String getThirdTermResults() {
+        return thirdTermResults;
+    }
+
+    public void setThirdTermResults(String thirdTermResults) {
+        this.thirdTermResults = thirdTermResults;
+    }
+
+    @Override
+    public String toString() {
+        return "StudentHistory [admissionNumber=" + admissionNumber + ", classId=" + classId + ", firstTermResults="
+                + firstTermResults + ", id=" + id + ", secondTermResults=" + secondTermResults + ", subjects="
+                + subjects + ", thirdTermResults=" + thirdTermResults + ", year=" + year + "]";
+    }
+
+  
 
 }
